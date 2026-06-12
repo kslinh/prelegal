@@ -2,6 +2,10 @@
 
 A platform for drafting comments legal agreements
 
+## Status
+
+🚧 **Project Status:** In Progress - Expected completion in 1 week
+
 ## Overview
 
 [Project overview and purpose]

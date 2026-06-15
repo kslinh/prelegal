@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-06-15",
+  "templates": [
+    {
+      "id": "mnda-001",
+      "name": "Mutual Non-Disclosure Agreement",
+      "description": "Standard Mutual Non-Disclosure Agreement for confidential business discussions",
+      "category": "non-disclosure",
+      "file": "mnda.json",
+      "version": "1.0"
+    },
+    {
+      "id": "nda-001",
+      "name": "Non-Disclosure Agreement",
+      "description": "One-way Non-Disclosure Agreement for protecting confidential information",
+      "category": "non-disclosure",
+      "file": "nda.json",
+      "version": "1.0"
+    },
+    {
+      "id": "sa-001",
+      "name": "Service Agreement",
+      "description": "Professional services agreement for service providers and clients",
+      "category": "services",
+      "file": "service_agreement.json",
+      "version": "1.0"
+    }
+  ],
+  "categories": [
+    {
+      "name": "non-disclosure",
+      "description": "Agreements for protecting confidential information"
+    },
+    {
+      "name": "services",
+      "description": "Agreements for service relationships"
+    },
+    {
+      "name": "employment",
+      "description": "Agreements related to employment relationships"
+    },
+    {
+      "name": "commercial",
+      "description": "General commercial agreements"
+    }
+  ]
+}

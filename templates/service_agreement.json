@@ -1,0 +1,114 @@
+{
+  "id": "sa-001",
+  "name": "Service Agreement",
+  "description": "Professional services agreement for service providers and clients",
+  "category": "services",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "services",
+      "title": "Services",
+      "content": "Provider agrees to provide the following services to Client: [Description of Services]. Provider shall perform the Services in a professional and competent manner in accordance with industry standards and best practices.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "compensation",
+      "title": "Compensation",
+      "content": "Client shall pay Provider a fee of [Amount] [per hour/per project/monthly] for the Services. Invoices shall be submitted [frequency], and payment is due within [Days] days of invoice date.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "term",
+      "title": "Term and Termination",
+      "content": "This Agreement shall commence on the Effective Date and continue for a period of [Term], unless earlier terminated. Either party may terminate this Agreement for cause upon [Notice Period] days' written notice if the other party materially breaches this Agreement and fails to cure within [Cure Period] days of written notice.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "responsibilities",
+      "title": "Responsibilities",
+      "content": "Provider shall: (a) Maintain confidentiality of Client information; (b) Use reasonable care and diligence; (c) Provide regular progress updates; (d) Maintain appropriate insurance coverage. Client shall: (a) Provide necessary information and access; (b) Make timely decisions; (c) Pay agreed-upon fees.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "ip",
+      "title": "Intellectual Property",
+      "content": "Any work product, deliverables, or intellectual property created by Provider in the course of performing the Services shall be [owned by Client / owned by Provider with license granted to Client]. Provider retains ownership of pre-existing tools and methodologies.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "confidentiality",
+      "title": "Confidentiality",
+      "content": "Both parties agree to maintain the confidentiality of any non-public information disclosed during the term of this Agreement and for [Survival Period] thereafter. This obligation does not apply to information that is publicly available or independently developed.",
+      "required": true,
+      "modifiable": false
+    },
+    {
+      "id": "liability",
+      "title": "Limitation of Liability",
+      "content": "IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. EACH PARTY'S TOTAL LIABILITY SHALL NOT EXCEED THE FEES PAID OR PAYABLE HEREUNDER.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "indemnification",
+      "title": "Indemnification",
+      "content": "Provider shall indemnify and hold harmless Client from any claims, damages, or liabilities arising from Provider's breach of this Agreement or negligence. Client shall indemnify and hold harmless Provider from any claims arising from Client's use of the Services.",
+      "required": true,
+      "modifiable": false
+    },
+    {
+      "id": "governing",
+      "title": "Governing Law",
+      "content": "This Agreement shall be governed by the laws of [Jurisdiction] without regard to conflict of law principles.",
+      "required": true,
+      "modifiable": true
+    }
+  ],
+  "customizableFields": [
+    {
+      "name": "Service Description",
+      "placeholder": "[detailed description of services]",
+      "required": true
+    },
+    {
+      "name": "Compensation Amount",
+      "placeholder": "[amount and currency]",
+      "required": true
+    },
+    {
+      "name": "Payment Frequency",
+      "placeholder": "[e.g., monthly, per project]",
+      "required": true
+    },
+    {
+      "name": "Payment Terms",
+      "placeholder": "[e.g., Net 30]",
+      "required": true
+    },
+    {
+      "name": "Agreement Term",
+      "placeholder": "[e.g., 12 months]",
+      "required": true
+    },
+    {
+      "name": "Termination Notice Period",
+      "placeholder": "[e.g., 30 days]",
+      "required": true
+    },
+    {
+      "name": "IP Ownership",
+      "placeholder": "[Client / Provider]",
+      "required": true
+    },
+    {
+      "name": "Jurisdiction",
+      "placeholder": "[state/jurisdiction]",
+      "required": true
+    }
+  ]
+}

@@ -3,16 +3,32 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { CustomizationMap } from '@/types/template';
 
+interface Draft {
+  templateId: string;
+  sections: Record<string, string>;
+  customizations: CustomizationMap;
+  savedAt: number;
+}
+
 interface TemplateState {
   favorites: Set<string>;
   customizations: Record<string, CustomizationMap>;
+  drafts: Record<string, Draft>;
+  editingSectionId: string | null;
+  editingSectionContent: string;
 }
 
 type Action =
   | { type: 'TOGGLE_FAVORITE'; id: string }
   | { type: 'SET_FIELD'; templateId: string; fieldName: string; value: string }
   | { type: 'RESET_FIELDS'; templateId: string }
-  | { type: 'LOAD_PERSISTED'; state: TemplateState };
+  | { type: 'LOAD_PERSISTED'; state: TemplateState }
+  | { type: 'START_EDIT_SECTION'; sectionId: string; content: string }
+  | { type: 'UPDATE_EDIT_CONTENT'; content: string }
+  | { type: 'CANCEL_EDIT_SECTION' }
+  | { type: 'SAVE_DRAFT'; templateId: string; sections: Record<string, string>; customizations: CustomizationMap }
+  | { type: 'DELETE_DRAFT'; templateId: string }
+  | { type: 'RESTORE_DRAFT'; draft: Draft };
 
 const TemplateContext = createContext<{
   state: TemplateState;
@@ -22,6 +38,9 @@ const TemplateContext = createContext<{
 const initialState: TemplateState = {
   favorites: new Set(),
   customizations: {},
+  drafts: {},
+  editingSectionId: null,
+  editingSectionContent: '',
 };
 
 function reducer(state: TemplateState, action: Action): TemplateState {
@@ -53,6 +72,62 @@ function reducer(state: TemplateState, action: Action): TemplateState {
       return { ...state, customizations: rest };
     }
 
+    case 'START_EDIT_SECTION': {
+      return {
+        ...state,
+        editingSectionId: action.sectionId,
+        editingSectionContent: action.content,
+      };
+    }
+
+    case 'UPDATE_EDIT_CONTENT': {
+      return {
+        ...state,
+        editingSectionContent: action.content,
+      };
+    }
+
+    case 'CANCEL_EDIT_SECTION': {
+      return {
+        ...state,
+        editingSectionId: null,
+        editingSectionContent: '',
+      };
+    }
+
+    case 'SAVE_DRAFT': {
+      const drafts = {
+        ...state.drafts,
+        [action.templateId]: {
+          templateId: action.templateId,
+          sections: action.sections,
+          customizations: action.customizations,
+          savedAt: Date.now(),
+        },
+      };
+      return {
+        ...state,
+        drafts,
+        editingSectionId: null,
+        editingSectionContent: '',
+      };
+    }
+
+    case 'DELETE_DRAFT': {
+      const { [action.templateId]: _removed, ...rest } = state.drafts;
+      return { ...state, drafts: rest };
+    }
+
+    case 'RESTORE_DRAFT': {
+      return {
+        ...state,
+        customizations: {
+          ...state.customizations,
+          [action.draft.templateId]: action.draft.customizations,
+        },
+      };
+    }
+
     case 'LOAD_PERSISTED': {
       return action.state;
     }
@@ -80,6 +155,9 @@ export function TemplateProvider({
           state: {
             favorites: new Set(parsed.favorites),
             customizations: parsed.customizations,
+            drafts: parsed.drafts || {},
+            editingSectionId: null,
+            editingSectionContent: '',
           },
         });
       }
@@ -93,6 +171,7 @@ export function TemplateProvider({
     const toSave = {
       favorites: Array.from(state.favorites),
       customizations: state.customizations,
+      drafts: state.drafts,
     };
     localStorage.setItem('templateState', JSON.stringify(toSave));
   }, [state]);

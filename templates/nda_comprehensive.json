@@ -1,0 +1,158 @@
+{
+  "id": "nda-comprehensive",
+  "name": "Comprehensive Non-Disclosure Agreement",
+  "description": "Advanced NDA with detailed provisions for complex business relationships and international applications",
+  "category": "non-disclosure",
+  "version": "2.0",
+  "sections": [
+    {
+      "id": "preamble",
+      "title": "Preamble",
+      "content": "This Non-Disclosure Agreement (\"Agreement\") is entered into as of [Effective Date] (\"Effective Date\") between [Disclosing Party], a [entity type] with its principal place of business at [Address] (\"Disclosing Party\"), and [Receiving Party], a [entity type] with its principal place of business at [Address] (\"Receiving Party\").\n\nWHEREAS, the Disclosing Party desires to disclose certain confidential and proprietary information to the Receiving Party for the Purpose of [purpose of disclosure]; and\n\nWHEREAS, the parties wish to protect the confidentiality of such information.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "definitions",
+      "title": "Definitions and Interpretation",
+      "content": "1.1 \"Confidential Information\" means any and all information or data disclosed by the Disclosing Party to the Receiving Party in any form or media, whether orally, in writing, electronically, or by inspection of tangible objects, and includes but is not limited to:\n(a) Trade secrets, know-how, research, product plans, products, developments, inventions, processes, formulas, techniques, designs, drawings, engineering, hardware configuration information, and software;\n(b) Business plans, financial information, customer lists, vendor lists, marketing strategies, pricing information, and cost data;\n(c) Technical data, specifications, source code, object code, algorithms, and documentation.\n\n1.2 Confidential Information shall not include information that:\n(a) Was known to the Receiving Party prior to disclosure, as evidenced by contemporaneous written records;\n(b) Is or becomes publicly available through no breach of this Agreement;\n(c) Is rightfully received from a third party without confidentiality obligations;\n(d) Is independently developed without reference to the Confidential Information;\n(e) Is approved for release by the Disclosing Party in writing.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "obligations",
+      "title": "Obligations of the Receiving Party",
+      "content": "2.1 Confidentiality Obligation. The Receiving Party agrees to maintain the Confidential Information in strict confidence and to:\n(a) Limit access to employees, contractors, and advisors who have a legitimate need to know and who are bound by equivalent confidentiality obligations;\n(b) Protect Confidential Information using reasonable safeguards that are at least as protective as those used to protect its own confidential information, but in no event less than reasonable care;\n(c) Use Confidential Information solely for the Purpose stated herein and not for any other purpose;\n(d) Not disclose Confidential Information to any third party without the prior written consent of the Disclosing Party, except as required by law.\n\n2.2 Return of Information. Within [return period] days of termination or upon request, the Receiving Party shall:\n(a) Return or destroy all Confidential Information in tangible form;\n(b) Certify in writing the return or destruction of such information;\n(c) Provide evidence of deletion of electronic copies.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "exclusions",
+      "title": "Exceptions to Confidentiality",
+      "content": "Notwithstanding the foregoing, the Receiving Party shall not be liable for disclosure of Confidential Information that:\n\n(a) Legally Required Disclosure. If required by law, regulation, court order, subpoena, or governmental request to disclose Confidential Information, the Receiving Party shall:\n    (i) Provide the Disclosing Party with prompt written notice of such requirement;\n    (ii) Cooperate with the Disclosing Party in seeking protective orders;\n    (iii) Disclose only the minimum information legally required;\n    (iv) Request confidential treatment of disclosed information.\n\n(b) Independent Development. Information independently developed by the Receiving Party without reference to or use of the Confidential Information.\n\n(c) Prior Knowledge. Information that was known to the Receiving Party prior to disclosure, as documented in writing.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "term",
+      "title": "Term and Termination",
+      "content": "3.1 This Agreement shall commence on the Effective Date and shall continue for a period of [Agreement Term] unless earlier terminated by either party upon [Termination Notice Period] written notice to the other party.\n\n3.2 Survival. The confidentiality obligations set forth herein shall survive termination of this Agreement for a period of [Survival Period], except that:\n(a) Trade secrets shall remain confidential for as long as they qualify as trade secrets under applicable law;\n(b) Technical information shall remain confidential for [technical survival period].\n\n3.3 The obligations under Section 2.2 (Return of Information) shall survive termination indefinitely.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "no_license",
+      "title": "No License or Obligation",
+      "content": "4.1 No License. Nothing in this Agreement grants any license, rights, or interest in the Confidential Information except as expressly set forth herein. The Disclosing Party retains all intellectual property rights in the Confidential Information.\n\n4.2 No Obligation to Disclose. The Disclosing Party has no obligation to disclose any Confidential Information. Any disclosure of Confidential Information is entirely discretionary.\n\n4.3 No Obligation to Support. The Disclosing Party has no obligation to provide technical support, maintenance, updates, or improvements to the Confidential Information.",
+      "required": true,
+      "modifiable": false
+    },
+    {
+      "id": "disclaimer",
+      "title": "Warranty Disclaimer",
+      "content": "The Confidential Information is provided \"AS IS\" without warranty of any kind, express or implied, including without limitation warranties of merchantability, fitness for a particular purpose, non-infringement, or accuracy. The Disclosing Party does not warrant that the Confidential Information is complete, accurate, or free from errors.\n\nThe Receiving Party is solely responsible for evaluating the Confidential Information and assumes all risk associated with its use.",
+      "required": true,
+      "modifiable": false
+    },
+    {
+      "id": "ip_ownership",
+      "title": "Intellectual Property",
+      "content": "5.1 The Disclosing Party retains all intellectual property rights in the Confidential Information, including all patents, copyrights, trademarks, and trade secrets.\n\n5.2 The Receiving Party agrees not to:\n(a) Reverse engineer, disassemble, or decompile any Confidential Information;\n(b) Attempt to discover the underlying concepts, algorithms, or methods;\n(c) Remove or alter any proprietary notices or labels;\n(d) Create derivative works based on the Confidential Information.\n\n5.3 Any improvements, modifications, or derivative works created using the Confidential Information shall be the property of the Disclosing Party.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "liability",
+      "title": "Limitation of Liability",
+      "content": "IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFITS, LOST DATA, OR BUSINESS INTERRUPTION, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.\n\nEXCEPT IN CASES OF WILLFUL MISCONDUCT OR GROSS NEGLIGENCE, NEITHER PARTY'S LIABILITY UNDER THIS AGREEMENT SHALL EXCEED THE TOTAL AMOUNT OF FEES PAID OR PAYABLE UNDER THIS AGREEMENT.",
+      "required": true,
+      "modifiable": false
+    },
+    {
+      "id": "governing_law",
+      "title": "Governing Law and Jurisdiction",
+      "content": "8.1 Governing Law. This Agreement shall be governed by and construed in accordance with the laws of [Jurisdiction], without regard to its conflict of law principles or the United Nations Convention on Contracts for the International Sale of Goods.\n\n8.2 Jurisdiction and Venue. The parties irrevocably submit to the exclusive jurisdiction of the courts of [Jurisdiction] for the resolution of any disputes arising under this Agreement.",
+      "required": true,
+      "modifiable": true
+    },
+    {
+      "id": "miscellaneous",
+      "title": "Miscellaneous Provisions",
+      "content": "9.1 Entire Agreement. This Agreement constitutes the entire agreement between the parties regarding the subject matter and supersedes all prior negotiations, understandings, and agreements.\n\n9.2 Amendments. No amendment or modification of this Agreement shall be valid unless in writing and signed by authorized representatives of both parties.\n\n9.3 Severability. If any provision is held invalid or unenforceable, the remaining provisions shall continue in full force and effect.\n\n9.4 Waiver. No waiver of any provision shall be effective unless in writing. A waiver of any breach shall not constitute a waiver of any other breach.\n\n9.5 Injunctive Relief. The parties acknowledge that breach of this Agreement may cause irreparable harm for which damages would be an inadequate remedy. Either party may seek injunctive relief or other equitable relief.",
+      "required": true,
+      "modifiable": false
+    }
+  ],
+  "customizableFields": [
+    {
+      "name": "Effective Date",
+      "placeholder": "[e.g., June 16, 2026]",
+      "required": true
+    },
+    {
+      "name": "Disclosing Party",
+      "placeholder": "[Company/Individual Name]",
+      "required": true
+    },
+    {
+      "name": "Disclosing Party Entity Type",
+      "placeholder": "[e.g., Corporation, LLC, Individual]",
+      "required": true
+    },
+    {
+      "name": "Disclosing Party Address",
+      "placeholder": "[Full Address]",
+      "required": true
+    },
+    {
+      "name": "Receiving Party",
+      "placeholder": "[Company/Individual Name]",
+      "required": true
+    },
+    {
+      "name": "Receiving Party Entity Type",
+      "placeholder": "[e.g., Corporation, LLC, Individual]",
+      "required": true
+    },
+    {
+      "name": "Receiving Party Address",
+      "placeholder": "[Full Address]",
+      "required": true
+    },
+    {
+      "name": "Purpose of Disclosure",
+      "placeholder": "[e.g., Potential Business Partnership, Technology Evaluation]",
+      "required": true
+    },
+    {
+      "name": "Agreement Term",
+      "placeholder": "[e.g., 2 years]",
+      "required": true
+    },
+    {
+      "name": "Termination Notice Period",
+      "placeholder": "[e.g., 30 days]",
+      "required": true
+    },
+    {
+      "name": "Survival Period",
+      "placeholder": "[e.g., 3 years after termination]",
+      "required": true
+    },
+    {
+      "name": "Technical Information Survival Period",
+      "placeholder": "[e.g., 5 years]",
+      "required": false
+    },
+    {
+      "name": "Return Period",
+      "placeholder": "[e.g., 30]",
+      "required": true
+    },
+    {
+      "name": "Jurisdiction",
+      "placeholder": "[e.g., California, New York, [Country]]",
+      "required": true
+    }
+  ]
+}

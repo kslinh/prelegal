@@ -19,6 +19,14 @@
       "version": "1.0"
     },
     {
+      "id": "nda-comprehensive",
+      "name": "Comprehensive Non-Disclosure Agreement",
+      "description": "Advanced NDA with detailed provisions for complex business relationships and international applications",
+      "category": "non-disclosure",
+      "file": "nda_comprehensive.json",
+      "version": "2.0"
+    },
+    {
       "id": "sa-001",
       "name": "Service Agreement",
       "description": "Professional services agreement for service providers and clients",

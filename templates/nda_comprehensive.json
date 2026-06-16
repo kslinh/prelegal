@@ -8,7 +8,7 @@
     {
       "id": "preamble",
       "title": "Preamble",
-      "content": "This Non-Disclosure Agreement (\"Agreement\") is entered into as of [Effective Date] (\"Effective Date\") between [Disclosing Party], a [entity type] with its principal place of business at [Address] (\"Disclosing Party\"), and [Receiving Party], a [entity type] with its principal place of business at [Address] (\"Receiving Party\").\n\nWHEREAS, the Disclosing Party desires to disclose certain confidential and proprietary information to the Receiving Party for the Purpose of [purpose of disclosure]; and\n\nWHEREAS, the parties wish to protect the confidentiality of such information.",
+      "content": "This Non-Disclosure Agreement (\"Agreement\") is entered into as of [Effective Date] (\"Effective Date\") between [Disclosing Party], a [Disclosing Party Entity Type] with its principal place of business at [Disclosing Party Address] (\"Disclosing Party\"), and [Receiving Party], a [Receiving Party Entity Type] with its principal place of business at [Receiving Party Address] (\"Receiving Party\").\n\nWHEREAS, the Disclosing Party desires to disclose certain confidential and proprietary information to the Receiving Party for the Purpose of [Purpose of Disclosure]; and\n\nWHEREAS, the parties wish to protect the confidentiality of such information.",
       "required": true,
       "modifiable": true
     },
@@ -22,7 +22,7 @@
     {
       "id": "obligations",
       "title": "Obligations of the Receiving Party",
-      "content": "2.1 Confidentiality Obligation. The Receiving Party agrees to maintain the Confidential Information in strict confidence and to:\n(a) Limit access to employees, contractors, and advisors who have a legitimate need to know and who are bound by equivalent confidentiality obligations;\n(b) Protect Confidential Information using reasonable safeguards that are at least as protective as those used to protect its own confidential information, but in no event less than reasonable care;\n(c) Use Confidential Information solely for the Purpose stated herein and not for any other purpose;\n(d) Not disclose Confidential Information to any third party without the prior written consent of the Disclosing Party, except as required by law.\n\n2.2 Return of Information. Within [return period] days of termination or upon request, the Receiving Party shall:\n(a) Return or destroy all Confidential Information in tangible form;\n(b) Certify in writing the return or destruction of such information;\n(c) Provide evidence of deletion of electronic copies.",
+      "content": "2.1 Confidentiality Obligation. The Receiving Party agrees to maintain the Confidential Information in strict confidence and to:\n(a) Limit access to employees, contractors, and advisors who have a legitimate need to know and who are bound by equivalent confidentiality obligations;\n(b) Protect Confidential Information using reasonable safeguards that are at least as protective as those used to protect its own confidential information, but in no event less than reasonable care;\n(c) Use Confidential Information solely for the Purpose stated herein and not for any other purpose;\n(d) Not disclose Confidential Information to any third party without the prior written consent of the Disclosing Party, except as required by law.\n\n2.2 Return of Information. Within [Return Period] days of termination or upon request, the Receiving Party shall:\n(a) Return or destroy all Confidential Information in tangible form;\n(b) Certify in writing the return or destruction of such information;\n(c) Provide evidence of deletion of electronic copies.",
       "required": true,
       "modifiable": true
     },
@@ -36,7 +36,7 @@
     {
       "id": "term",
       "title": "Term and Termination",
-      "content": "3.1 This Agreement shall commence on the Effective Date and shall continue for a period of [Agreement Term] unless earlier terminated by either party upon [Termination Notice Period] written notice to the other party.\n\n3.2 Survival. The confidentiality obligations set forth herein shall survive termination of this Agreement for a period of [Survival Period], except that:\n(a) Trade secrets shall remain confidential for as long as they qualify as trade secrets under applicable law;\n(b) Technical information shall remain confidential for [technical survival period].\n\n3.3 The obligations under Section 2.2 (Return of Information) shall survive termination indefinitely.",
+      "content": "3.1 This Agreement shall commence on the Effective Date and shall continue for a period of [Agreement Term] unless earlier terminated by either party upon [Termination Notice Period] written notice to the other party.\n\n3.2 Survival. The confidentiality obligations set forth herein shall survive termination of this Agreement for a period of [Survival Period], except that:\n(a) Trade secrets shall remain confidential for as long as they qualify as trade secrets under applicable law;\n(b) Technical information shall remain confidential for [Technical Information Survival Period].\n\n3.3 The obligations under Section 2.2 (Return of Information) shall survive termination indefinitely.",
       "required": true,
       "modifiable": true
     },

@@ -88,31 +88,83 @@
     {
       "name": "Purpose",
       "placeholder": "[purpose of the agreement]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Effective Date",
       "placeholder": "[date]",
+      "type": "text",
       "required": true
     },
     {
       "name": "MNDA Term",
       "placeholder": "[duration, e.g., 2 years]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Term of Confidentiality",
       "placeholder": "[duration, e.g., 3 years]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Governing Law",
-      "placeholder": "[state/jurisdiction]",
+      "placeholder": "Select a jurisdiction...",
+      "type": "select",
+      "options": [
+        "California",
+        "Delaware",
+        "Florida",
+        "Illinois",
+        "New York",
+        "Pennsylvania",
+        "Texas",
+        "Washington",
+        "United Kingdom (English Law)",
+        "Canada",
+        "Australia",
+        "India",
+        "Singapore",
+        "Hong Kong",
+        "Japan",
+        "South Korea",
+        "UAE (Dubai)",
+        "New Zealand",
+        "Ireland",
+        "Mexico",
+        "Brazil"
+      ],
       "required": true
     },
     {
       "name": "Jurisdiction",
-      "placeholder": "[courts location]",
+      "placeholder": "Select a court location...",
+      "type": "select",
+      "options": [
+        "California",
+        "Delaware",
+        "Florida",
+        "Illinois",
+        "New York",
+        "Pennsylvania",
+        "Texas",
+        "Washington",
+        "United Kingdom (English Law)",
+        "Canada",
+        "Australia",
+        "India",
+        "Singapore",
+        "Hong Kong",
+        "Japan",
+        "South Korea",
+        "UAE (Dubai)",
+        "New Zealand",
+        "Ireland",
+        "Mexico",
+        "Brazil"
+      ],
       "required": true
     }
   ]

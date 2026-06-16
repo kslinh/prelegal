@@ -10,6 +10,8 @@ export interface CustomizableField {
   name: string;
   placeholder: string;
   required: boolean;
+  type?: 'text' | 'select';
+  options?: string[];
   value?: string;
 }
 

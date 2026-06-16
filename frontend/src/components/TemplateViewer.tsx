@@ -327,15 +327,32 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
                             <span className="text-red-600 ml-1">*</span>
                           )}
                         </label>
-                        <input
-                          type="text"
-                          value={customizations[field.name] || ''}
-                          onChange={(e) =>
-                            handleFieldChange(field.name, e.target.value)
-                          }
-                          placeholder={field.placeholder}
-                          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                        {field.type === 'select' && field.options ? (
+                          <select
+                            value={customizations[field.name] || ''}
+                            onChange={(e) =>
+                              handleFieldChange(field.name, e.target.value)
+                            }
+                            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          >
+                            <option value="">{field.placeholder}</option>
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={customizations[field.name] || ''}
+                            onChange={(e) =>
+                              handleFieldChange(field.name, e.target.value)
+                            }
+                            placeholder={field.placeholder}
+                            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          />
+                        )}
                       </div>
                     ))}
                   </div>

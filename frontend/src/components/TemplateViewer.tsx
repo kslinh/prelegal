@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Template } from '@/types/template';
 import { useTemplateContext } from '@/context/TemplateContext';
 import { applyCustomizations, downloadFile, getCategoryColor, exportAsText } from '@/lib/utils';
@@ -30,6 +30,15 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
   const isFavorite = state.favorites.has(template.id);
   const customizations = state.customizations[template.id] || {};
   const hasDraft = state.drafts[template.id] !== undefined;
+
+  // Memoize section content to ensure preview updates when customizations change
+  const sectionContent = useMemo(() => {
+    const content: Record<string, string> = {};
+    template.sections.forEach(section => {
+      content[section.id] = editedSections[section.id] || applyCustomizations(section.content, customizations);
+    });
+    return content;
+  }, [template.sections, editedSections, customizations]);
 
   const handleFavoriteClick = () => {
     dispatch({ type: 'TOGGLE_FAVORITE', id: template.id });
@@ -272,7 +281,7 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
                     />
                   ) : (
                     <div className="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">
-                      {editedSections[section.id] || applyCustomizations(section.content, customizations)}
+                      {sectionContent[section.id]}
                     </div>
                   )}
                 </div>

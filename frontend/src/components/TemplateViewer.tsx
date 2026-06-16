@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Template } from '@/types/template';
 import { useTemplateContext } from '@/context/TemplateContext';
 import { applyCustomizations, downloadFile, getCategoryColor, exportAsText } from '@/lib/utils';
@@ -14,6 +14,18 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
   const { state, dispatch } = useTemplateContext();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedSections, setEditedSections] = useState<Record<string, string>>({});
+
+  // Initialize editedSections from draft if it exists (when not in edit mode)
+  useEffect(() => {
+    if (!isEditMode) {
+      const draft = state.drafts[template.id];
+      if (draft) {
+        setEditedSections(draft.sections);
+      } else {
+        setEditedSections({});
+      }
+    }
+  }, [template.id, state.drafts, isEditMode]);
 
   const isFavorite = state.favorites.has(template.id);
   const customizations = state.customizations[template.id] || {};
@@ -55,12 +67,17 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
       // Reset edits when exiting edit mode without saving
       setEditedSections({});
     } else {
-      // Initialize edited sections with current content
-      const initial: Record<string, string> = {};
-      template.sections.forEach(section => {
-        initial[section.id] = applyCustomizations(section.content, customizations);
-      });
-      setEditedSections(initial);
+      // Initialize edited sections - use draft if available, otherwise use current content with customizations
+      const draft = state.drafts[template.id];
+      if (draft) {
+        setEditedSections(draft.sections);
+      } else {
+        const initial: Record<string, string> = {};
+        template.sections.forEach(section => {
+          initial[section.id] = applyCustomizations(section.content, customizations);
+        });
+        setEditedSections(initial);
+      }
     }
     setIsEditMode(!isEditMode);
   };

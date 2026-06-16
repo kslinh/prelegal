@@ -125,6 +125,10 @@ function reducer(state: TemplateState, action: Action): TemplateState {
           ...state.customizations,
           [action.draft.templateId]: action.draft.customizations,
         },
+        drafts: {
+          ...state.drafts,
+          [action.draft.templateId]: action.draft,
+        },
       };
     }
 

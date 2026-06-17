@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Link from 'next/link';
 import useSWR from 'swr';
 import SearchBar from '@/components/SearchBar';
 import CategoryFilter from '@/components/CategoryFilter';
@@ -49,12 +50,25 @@ export default function Home() {
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Legal Templates
-          </h1>
-          <p className="text-gray-600">
-            Browse and customize templates for your legal documents
-          </p>
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Legal Templates
+              </h1>
+              <p className="text-gray-600">
+                Browse and customize templates for your legal documents
+              </p>
+            </div>
+            <Link
+              href="/nda/create"
+              className="mt-2 flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white font-medium hover:bg-indigo-700 transition-colors whitespace-nowrap"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create NDA
+            </Link>
+          </div>
         </div>
       </div>
 

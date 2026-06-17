@@ -80,7 +80,7 @@ The form guides users through four progressive steps:
 ```
 
 **Data Field:**
-- `templateType`: 'nda' | 'mnda' | 'nda-comprehensive'
+- `templateType`: 'nda-001' | 'mnda-001' | 'nda-comprehensive'
 
 ### Step 2: Party Information
 
@@ -256,7 +256,7 @@ When the form is submitted, field values are mapped to template customization fi
 
 ### URL Routes
 - Form: `/nda/create`
-- Template Viewer (after submit): `/templates/nda-001` (or other template ID)
+- Template Viewer (after submit): `/templates/nda-001`, `/templates/mnda-001`, or `/templates/nda-comprehensive`
 
 ## Integration with TemplateContext
 
@@ -321,8 +321,10 @@ Object.entries(customizations).forEach(([fieldName, value]) => {
   });
 });
 
-// 5. Redirect to template viewer
-window.location.href = `/templates/${formData.templateType}`;
+// 5. Redirect to template viewer (with 100ms delay to ensure dispatch completes)
+setTimeout(() => {
+  router.push(`/templates/${formData.templateType}`);
+}, 100);
 
 // 6. Template viewer renders with customizations applied
 ```

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useTemplateContext } from '@/context/TemplateContext';
 
 interface NDAFormData {
-  templateType: 'nda' | 'mnda' | 'nda-comprehensive';
+  templateType: 'nda-001' | 'mnda-001' | 'nda-comprehensive';
   disclosingPartyName: string;
   disclosingPartyType: 'corporation' | 'llc' | 'individual' | 'partnership';
   disclosingPartyAddress: string;
@@ -24,7 +24,7 @@ interface NDAFormData {
 }
 
 const EMPTY_FORM: NDAFormData = {
-  templateType: 'nda-comprehensive',
+  templateType: 'nda-comprehensive', // nda-001, mnda-001, or nda-comprehensive
   disclosingPartyName: '',
   disclosingPartyType: 'corporation',
   disclosingPartyAddress: '',
@@ -64,8 +64,8 @@ const ENTITY_TYPES = [
 ];
 
 const TEMPLATE_OPTIONS = [
-  { value: 'nda', label: 'Standard NDA (One-Way)', desc: 'One-way confidentiality obligations' },
-  { value: 'mnda', label: 'Mutual NDA (Two-Way)', desc: 'Two-way confidentiality obligations' },
+  { value: 'nda-001', label: 'Standard NDA (One-Way)', desc: 'One-way confidentiality obligations' },
+  { value: 'mnda-001', label: 'Mutual NDA (Two-Way)', desc: 'Two-way confidentiality obligations' },
   { value: 'nda-comprehensive', label: 'Comprehensive NDA (Advanced)', desc: 'Advanced with detailed provisions' },
 ];
 

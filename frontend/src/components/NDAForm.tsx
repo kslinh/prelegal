@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTemplateContext } from '@/context/TemplateContext';
 
@@ -69,6 +70,7 @@ const TEMPLATE_OPTIONS = [
 ];
 
 export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) => void }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<NDAFormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -165,7 +167,10 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
       if (onSubmit) {
         onSubmit(formData);
       } else {
-        window.location.href = `/templates/${templateId}`;
+        // Use Next.js router for smooth client-side navigation
+        setTimeout(() => {
+          router.push(`/templates/${templateId}`);
+        }, 100);
       }
     }
   };

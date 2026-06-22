@@ -54,7 +54,12 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
       title: section.title,
       content: sectionContent[section.id],
     }));
-    await downloadPdf(template.name, template.description, sections, `${template.id}.pdf`);
+    try {
+      await downloadPdf(template.name, template.description, sections, `${template.id}.pdf`);
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      alert('Sorry, the PDF could not be generated. Please try again.');
+    }
   };
 
   const handleFieldChange = (fieldName: string, value: string) => {

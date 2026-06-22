@@ -37,10 +37,11 @@ def list_documents(
 @app.post("/documents", response_model=DocumentSchema)
 def create_document(
     doc: DocumentCreate,
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
     new_doc = Document(
-        user_email=doc.user_email,
+        user_email=email,
         template_id=doc.template_id,
         title=doc.title,
         content=doc.content,

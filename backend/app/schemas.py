@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 class DocumentBase(BaseModel):
@@ -11,9 +12,9 @@ class DocumentCreate(DocumentBase):
     pass
 
 class DocumentUpdate(BaseModel):
-    title: str | None = None
-    content: str | None = None
-    customizations: str | None = None
+    title: Optional[str] = None
+    content: Optional[str] = None
+    customizations: Optional[str] = None
 
 class Document(DocumentBase):
     id: int

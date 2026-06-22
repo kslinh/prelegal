@@ -13,7 +13,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm
 
-# Copy backend directory entirely
+# Copy templates and backend
+COPY templates ./templates
 COPY backend ./backend
 
 # Install backend dependencies

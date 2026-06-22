@@ -1,29 +1,17 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from datetime import timedelta
-import json
 
 from app.config import settings
 from app.database import engine, Base, get_db
-from app.models import User, Document, Favorite
+from app.models import Document, Favorite
 from app.schemas import (
-    User as UserSchema,
-    UserCreate,
     Document as DocumentSchema,
     DocumentCreate,
     DocumentUpdate,
     Favorite as FavoriteSchema,
     FavoriteBase,
-    SignInRequest,
-    TokenResponse,
     MessageResponse,
-)
-from app.auth import (
-    authenticate_user,
-    create_access_token,
-    get_current_user,
-    get_password_hash,
 )
 
 Base.metadata.create_all(bind=engine)
@@ -38,65 +26,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def authenticate_user_func(db: Session, email: str, password: str):
-    from app.auth import verify_password
-    user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-@app.post("/auth/signup", response_model=UserSchema)
-def signup(user_data: UserCreate, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == user_data.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    hashed_password = get_password_hash(user_data.password)
-    new_user = User(
-        email=user_data.email,
-        full_name=user_data.full_name,
-        hashed_password=hashed_password,
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
-
-@app.post("/auth/signin", response_model=TokenResponse)
-def signin(credentials: SignInRequest, db: Session = Depends(get_db)):
-    user = authenticate_user_func(db, credentials.email, credentials.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
-    access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
-
-@app.get("/users/me", response_model=UserSchema)
-def get_current_user_profile(current_user: User = Depends(get_current_user)):
-    return current_user
-
 @app.get("/documents", response_model=list[DocumentSchema])
 def list_documents(
-    current_user: User = Depends(get_current_user),
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
-    documents = db.query(Document).filter(Document.owner_id == current_user.id).all()
+    documents = db.query(Document).filter(Document.user_email == email).all()
     return documents
 
 @app.post("/documents", response_model=DocumentSchema)
 def create_document(
     doc: DocumentCreate,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     new_doc = Document(
-        owner_id=current_user.id,
+        user_email=doc.user_email,
         template_id=doc.template_id,
         title=doc.title,
         content=doc.content,
@@ -110,12 +54,12 @@ def create_document(
 @app.get("/documents/{doc_id}", response_model=DocumentSchema)
 def get_document(
     doc_id: int,
-    current_user: User = Depends(get_current_user),
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
     doc = db.query(Document).filter(
         Document.id == doc_id,
-        Document.owner_id == current_user.id,
+        Document.user_email == email,
     ).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -125,12 +69,12 @@ def get_document(
 def update_document(
     doc_id: int,
     doc_update: DocumentUpdate,
-    current_user: User = Depends(get_current_user),
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
     doc = db.query(Document).filter(
         Document.id == doc_id,
-        Document.owner_id == current_user.id,
+        Document.user_email == email,
     ).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -149,12 +93,12 @@ def update_document(
 @app.delete("/documents/{doc_id}", response_model=MessageResponse)
 def delete_document(
     doc_id: int,
-    current_user: User = Depends(get_current_user),
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
     doc = db.query(Document).filter(
         Document.id == doc_id,
-        Document.owner_id == current_user.id,
+        Document.user_email == email,
     ).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
@@ -165,26 +109,26 @@ def delete_document(
 
 @app.get("/favorites", response_model=list[FavoriteSchema])
 def list_favorites(
-    current_user: User = Depends(get_current_user),
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
-    favorites = db.query(Favorite).filter(Favorite.user_id == current_user.id).all()
+    favorites = db.query(Favorite).filter(Favorite.user_email == email).all()
     return favorites
 
 @app.post("/favorites", response_model=FavoriteSchema)
 def add_favorite(
     fav: FavoriteBase,
-    current_user: User = Depends(get_current_user),
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
     existing = db.query(Favorite).filter(
-        Favorite.user_id == current_user.id,
+        Favorite.user_email == email,
         Favorite.template_id == fav.template_id,
     ).first()
     if existing:
         raise HTTPException(status_code=400, detail="Already in favorites")
 
-    new_fav = Favorite(user_id=current_user.id, template_id=fav.template_id)
+    new_fav = Favorite(user_email=email, template_id=fav.template_id)
     db.add(new_fav)
     db.commit()
     db.refresh(new_fav)
@@ -193,11 +137,11 @@ def add_favorite(
 @app.delete("/favorites/{template_id}", response_model=MessageResponse)
 def remove_favorite(
     template_id: str,
-    current_user: User = Depends(get_current_user),
+    email: str = Query(...),
     db: Session = Depends(get_db),
 ):
     fav = db.query(Favorite).filter(
-        Favorite.user_id == current_user.id,
+        Favorite.user_email == email,
         Favorite.template_id == template_id,
     ).first()
     if not fav:

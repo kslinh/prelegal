@@ -24,9 +24,6 @@ RUN pip install --no-cache-dir \
     pydantic==2.7.0 \
     pydantic-settings==2.3.0 \
     python-multipart==0.0.6 \
-    passlib==1.7.4 \
-    argon2-cffi==23.1.0 \
-    python-jose[cryptography]==3.3.0 \
     python-dotenv==1.0.0 \
     litellm==1.40.0 \
     email-validator==2.1.0
@@ -34,9 +31,9 @@ RUN pip install --no-cache-dir \
 # Copy frontend
 COPY frontend ./frontend
 
-# Build frontend (if it has a build script)
+# Build frontend
 WORKDIR /app/frontend
-RUN npm ci 2>/dev/null && npm run build 2>/dev/null || echo "Frontend build skipped"
+RUN npm install && npm run build
 
 # Copy environment file
 COPY .env ./

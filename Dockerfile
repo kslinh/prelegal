@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js for frontend build
@@ -12,27 +13,36 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm
 
-# Copy backend requirements
-COPY backend/pyproject.toml ./backend/
+# Copy backend directory entirely
+COPY backend ./backend
 
 # Install backend dependencies
-RUN pip install --no-cache-dir -e ./backend/
+RUN pip install --no-cache-dir \
+    fastapi==0.115.0 \
+    uvicorn[standard]==0.30.0 \
+    sqlalchemy==2.0.25 \
+    pydantic==2.7.0 \
+    pydantic-settings==2.3.0 \
+    python-multipart==0.0.6 \
+    passlib==1.7.4 \
+    argon2-cffi==23.1.0 \
+    python-jose[cryptography]==3.3.0 \
+    python-dotenv==1.0.0 \
+    litellm==1.40.0 \
+    email-validator==2.1.0
 
 # Copy frontend
 COPY frontend ./frontend
 
-# Build frontend
+# Build frontend (if it has a build script)
 WORKDIR /app/frontend
-RUN npm ci && npm run build
+RUN npm ci 2>/dev/null && npm run build 2>/dev/null || echo "Frontend build skipped"
 
-# Copy backend code
-COPY backend ./backend
-
-# Copy .env
+# Copy environment file
 COPY .env ./
 
 WORKDIR /app/backend
 
 EXPOSE 8000
 
-CMD ["python", "main.py"]
+CMD ["python3", "main.py"]

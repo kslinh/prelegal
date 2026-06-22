@@ -49,6 +49,30 @@ def get_templates():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load templates: {str(e)}")
 
+@app.get("/api/templates/{template_id}")
+def get_template(template_id: str):
+    try:
+        with open("/app/templates/index.json", "r") as f:
+            index = json.load(f)
+
+        template_entry = None
+        for t in index.get("templates", []):
+            if t["id"] == template_id:
+                template_entry = t
+                break
+
+        if not template_entry:
+            raise HTTPException(status_code=404, detail="Template not found")
+
+        template_file = os.path.join("/app/templates", template_entry["file"])
+        with open(template_file, "r") as f:
+            template = json.load(f)
+        return template
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load template: {str(e)}")
+
 @app.get("/documents", response_model=list[DocumentSchema])
 def list_documents(
     email: str = Query(...),

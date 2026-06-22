@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, HTMLResponse
 from sqlalchemy.orm import Session
 import os
 import json
@@ -186,20 +187,18 @@ async def serve_static(path: str):
     # Try exact file first
     file_path = os.path.join(static_dir, path)
     if os.path.isfile(file_path):
-        return StaticFiles(directory=static_dir, check_dir=False)({"path": path})
+        return FileResponse(file_path)
 
     # Try with /index.html for directories
     index_path = os.path.join(static_dir, path, "index.html")
     if os.path.isfile(index_path):
         with open(index_path, "r") as f:
-            from fastapi.responses import HTMLResponse
             return HTMLResponse(content=f.read())
 
     # Try root index.html as fallback (for client-side routing)
     root_index = os.path.join(static_dir, "index.html")
     if os.path.isfile(root_index) and not path.startswith("api/"):
         with open(root_index, "r") as f:
-            from fastapi.responses import HTMLResponse
             return HTMLResponse(content=f.read())
 
     raise HTTPException(status_code=404, detail="Not found")

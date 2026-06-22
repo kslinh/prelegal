@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
 import { Template } from '@/types/template';
 import { useTemplateContext } from '@/context/TemplateContext';
-import { applyCustomizations, downloadFile, getCategoryColor, exportAsText } from '@/lib/utils';
+import { applyCustomizations, downloadFile, getCategoryColor, downloadPdf } from '@/lib/utils';
 
 interface TemplateViewerProps {
   template: Template;
@@ -49,9 +49,12 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
     downloadFile(json, `${template.id}.json`, 'application/json');
   };
 
-  const handleDownloadText = () => {
-    const text = exportAsText(template);
-    downloadFile(text, `${template.id}.txt`, 'text/plain');
+  const handleDownloadPdf = async () => {
+    const sections = template.sections.map((section) => ({
+      title: section.title,
+      content: sectionContent[section.id],
+    }));
+    await downloadPdf(template.name, template.description, sections, `${template.id}.pdf`);
   };
 
   const handleFieldChange = (fieldName: string, value: string) => {
@@ -310,7 +313,7 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
                 Download JSON
               </button>
               <button
-                onClick={handleDownloadText}
+                onClick={handleDownloadPdf}
                 className="flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-white font-medium hover:bg-gray-700 transition-colors"
               >
                 <svg
@@ -326,7 +329,7 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                   />
                 </svg>
-                Download Text
+                Download PDF
               </button>
             </div>
           </div>

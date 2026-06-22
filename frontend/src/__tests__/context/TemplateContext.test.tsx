@@ -1,74 +1,73 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { TemplateProvider, useTemplate } from '@/context/TemplateContext'
+import { TemplateProvider, useTemplateContext } from '@/context/TemplateContext'
 
 const TestComponent = () => {
-  const { selectedTemplate, setSelectedTemplate } = useTemplate()
+  const { state, dispatch } = useTemplateContext()
 
   return (
     <div>
-      {selectedTemplate ? (
-        <div>
-          <span data-testid="template-name">{selectedTemplate.name}</span>
-          <button onClick={() => setSelectedTemplate(null)}>Clear</button>
-        </div>
-      ) : (
-        <span data-testid="no-template">No template selected</span>
-      )}
+      <span data-testid="favorite-count">{state.favorites.size}</span>
+      <span data-testid="is-favorite">
+        {state.favorites.has('nda-001') ? 'yes' : 'no'}
+      </span>
+      <span data-testid="party-name">
+        {state.customizations['nda-001']?.partyName || ''}
+      </span>
+      <button onClick={() => dispatch({ type: 'TOGGLE_FAVORITE', id: 'nda-001' })}>
+        Toggle Favorite
+      </button>
       <button
         onClick={() =>
-          setSelectedTemplate({
-            id: 'nda-001',
-            name: 'Test NDA',
-            description: 'Test',
-            category: 'Non-Disclosure',
-            version: '1.0',
-            sections: [],
-            customization_fields: [],
+          dispatch({
+            type: 'SET_FIELD',
+            templateId: 'nda-001',
+            fieldName: 'partyName',
+            value: 'Acme Corp',
           })
         }
       >
-        Select Template
+        Set Field
       </button>
     </div>
   )
 }
 
+const renderProvider = () =>
+  render(
+    <TemplateProvider>
+      <TestComponent />
+    </TemplateProvider>
+  )
+
 describe('TemplateContext', () => {
-  it('provides initial state', () => {
-    render(
-      <TemplateProvider>
-        <TestComponent />
-      </TemplateProvider>
-    )
-
-    expect(screen.getByTestId('no-template')).toBeInTheDocument()
+  beforeEach(() => {
+    localStorage.clear()
   })
 
-  it('updates selected template', () => {
-    render(
-      <TemplateProvider>
-        <TestComponent />
-      </TemplateProvider>
-    )
+  it('provides the initial empty state', () => {
+    renderProvider()
 
-    const button = screen.getByText('Select Template')
-    fireEvent.click(button)
-
-    expect(screen.getByTestId('template-name')).toBeInTheDocument()
-    expect(screen.getByTestId('template-name')).toHaveTextContent('Test NDA')
+    expect(screen.getByTestId('favorite-count')).toHaveTextContent('0')
+    expect(screen.getByTestId('is-favorite')).toHaveTextContent('no')
   })
 
-  it('clears selected template', () => {
-    render(
-      <TemplateProvider>
-        <TestComponent />
-      </TemplateProvider>
-    )
+  it('toggles a favorite on and off', () => {
+    renderProvider()
+    const toggle = screen.getByText('Toggle Favorite')
 
-    fireEvent.click(screen.getByText('Select Template'))
-    expect(screen.queryByTestId('template-name')).toBeInTheDocument()
+    fireEvent.click(toggle)
+    expect(screen.getByTestId('is-favorite')).toHaveTextContent('yes')
+    expect(screen.getByTestId('favorite-count')).toHaveTextContent('1')
 
-    fireEvent.click(screen.getByText('Clear'))
-    expect(screen.getByTestId('no-template')).toBeInTheDocument()
+    fireEvent.click(toggle)
+    expect(screen.getByTestId('is-favorite')).toHaveTextContent('no')
+    expect(screen.getByTestId('favorite-count')).toHaveTextContent('0')
+  })
+
+  it('sets a customization field for a template', () => {
+    renderProvider()
+
+    fireEvent.click(screen.getByText('Set Field'))
+    expect(screen.getByTestId('party-name')).toHaveTextContent('Acme Corp')
   })
 })

@@ -1,32 +1,15 @@
-import { notFound } from 'next/navigation';
-import TemplateViewer from '@/components/TemplateViewer';
-import { Template } from '@/types/template';
+import fs from 'fs';
+import path from 'path';
+import TemplateClient from './TemplateClient';
 
-async function getTemplate(templateId: string): Promise<Template | null> {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/templates/${templateId}`,
-      { cache: 'no-store' }
-    );
-    if (!response.ok) {
-      return null;
-    }
-    return await response.json();
-  } catch {
-    return null;
-  }
-}
-
+// Statically enumerate template IDs at build time from the templates index.
+// This runs in Node during `next build`, so it reads the catalog directly
+// instead of calling the backend (which isn't running during the build).
 export async function generateStaticParams() {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/templates`
-    );
-    if (!response.ok) {
-      return [];
-    }
-    const data = await response.json();
-    return (data.templates || []).map((template: any) => ({
+    const indexPath = path.join(process.cwd(), '..', 'templates', 'index.json');
+    const data = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+    return (data.templates || []).map((template: { id: string }) => ({
       templateId: template.id,
     }));
   } catch {
@@ -34,16 +17,10 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function TemplatePage({
+export default function TemplatePage({
   params,
 }: {
   params: { templateId: string };
 }) {
-  const template = await getTemplate(params.templateId);
-
-  if (!template) {
-    notFound();
-  }
-
-  return <TemplateViewer template={template} />;
+  return <TemplateClient templateId={params.templateId} />;
 }

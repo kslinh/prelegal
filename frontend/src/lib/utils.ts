@@ -63,16 +63,60 @@ export function customizeTemplate(
   return customized;
 }
 
-export function exportAsText(template: Template): string {
-  let output = `# ${template.name}\n\n`;
-  output += `${template.description}\n\n`;
+export interface PdfSection {
+  title: string;
+  content: string;
+}
 
-  for (const section of template.sections) {
-    output += `## ${section.title}\n\n`;
-    output += `${section.content}\n\n`;
+export async function downloadPdf(
+  title: string,
+  description: string,
+  sections: PdfSection[],
+  filename: string
+): Promise<void> {
+  // Loaded lazily so jsPDF (and its canvas probing) is only pulled in when a
+  // user actually downloads, keeping it out of the shared bundle and tests.
+  const { jsPDF } = await import('jspdf');
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 56;
+  const maxWidth = pageWidth - margin * 2;
+  let y = margin;
+
+  const writeBlock = (
+    text: string,
+    fontSize: number,
+    fontStyle: 'normal' | 'bold',
+    spacingAfter: number
+  ): void => {
+    if (!text) {
+      return;
+    }
+    doc.setFont('helvetica', fontStyle);
+    doc.setFontSize(fontSize);
+    const lineHeight = fontSize * 1.35;
+    const lines = doc.splitTextToSize(text, maxWidth);
+    for (const line of lines) {
+      if (y + lineHeight > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.text(line, margin, y);
+      y += lineHeight;
+    }
+    y += spacingAfter;
+  };
+
+  writeBlock(title, 20, 'bold', 12);
+  writeBlock(description, 11, 'normal', 18);
+
+  for (const section of sections) {
+    writeBlock(section.title, 14, 'bold', 6);
+    writeBlock(section.content, 11, 'normal', 16);
   }
 
-  return output;
+  doc.save(filename);
 }
 
 export const CATEGORY_COLORS: Record<string, string> = {

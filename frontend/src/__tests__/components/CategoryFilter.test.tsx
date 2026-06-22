@@ -1,76 +1,57 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { CategoryFilter } from '@/components/CategoryFilter'
+import CategoryFilter from '@/components/CategoryFilter'
+
+const categories = [
+  { name: 'non-disclosure', description: 'NDAs' },
+  { name: 'services', description: 'Service agreements' },
+]
 
 describe('CategoryFilter', () => {
-  const mockCategories = [
-    'Non-Disclosure',
-    'Services',
-    'Employment',
-    'Commercial',
-  ]
-
-  it('renders all category buttons', () => {
+  it('renders an All button and one button per category', () => {
     render(
-      <CategoryFilter
-        categories={mockCategories}
-        selectedCategory={null}
-        onCategoryChange={jest.fn()}
-      />
+      <CategoryFilter categories={categories} selected={null} onSelect={jest.fn()} />
     )
 
-    mockCategories.forEach(category => {
-      expect(screen.getByText(category)).toBeInTheDocument()
-    })
+    expect(screen.getByText('All')).toBeInTheDocument()
+    expect(screen.getByText('Non Disclosure')).toBeInTheDocument()
+    expect(screen.getByText('Services')).toBeInTheDocument()
   })
 
-  it('calls onCategoryChange when category is clicked', () => {
-    const mockOnChange = jest.fn()
+  it('calls onSelect with the category name when a category is clicked', () => {
+    const onSelect = jest.fn()
     render(
-      <CategoryFilter
-        categories={mockCategories}
-        selectedCategory={null}
-        onCategoryChange={mockOnChange}
-      />
+      <CategoryFilter categories={categories} selected={null} onSelect={onSelect} />
     )
 
-    const button = screen.getByText('Non-Disclosure')
-    fireEvent.click(button)
-    expect(mockOnChange).toHaveBeenCalledWith('Non-Disclosure')
+    fireEvent.click(screen.getByText('Non Disclosure'))
+    expect(onSelect).toHaveBeenCalledWith('non-disclosure')
   })
 
-  it('highlights selected category', () => {
-    const { rerender } = render(
-      <CategoryFilter
-        categories={mockCategories}
-        selectedCategory={null}
-        onCategoryChange={jest.fn()}
-      />
-    )
-
-    rerender(
-      <CategoryFilter
-        categories={mockCategories}
-        selectedCategory="Non-Disclosure"
-        onCategoryChange={jest.fn()}
-      />
-    )
-
-    const selectedButton = screen.getByText('Non-Disclosure').closest('button')
-    expect(selectedButton).toHaveClass('bg-blue-600')
-  })
-
-  it('deselects category when clicked again', () => {
-    const mockOnChange = jest.fn()
+  it('calls onSelect with null when All is clicked', () => {
+    const onSelect = jest.fn()
     render(
       <CategoryFilter
-        categories={mockCategories}
-        selectedCategory="Non-Disclosure"
-        onCategoryChange={mockOnChange}
+        categories={categories}
+        selected="non-disclosure"
+        onSelect={onSelect}
       />
     )
 
-    const button = screen.getByText('Non-Disclosure')
-    fireEvent.click(button)
-    expect(mockOnChange).toHaveBeenCalledWith(null)
+    fireEvent.click(screen.getByText('All'))
+    expect(onSelect).toHaveBeenCalledWith(null)
+  })
+
+  it('highlights the selected category', () => {
+    render(
+      <CategoryFilter
+        categories={categories}
+        selected="non-disclosure"
+        onSelect={jest.fn()}
+      />
+    )
+
+    expect(screen.getByText('Non Disclosure').closest('button')).toHaveClass(
+      'bg-indigo-600'
+    )
   })
 })

@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 export function ProtectedRoute({
@@ -11,12 +11,15 @@ export function ProtectedRoute({
 }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/auth/login');
+      if (!pathname.startsWith('/auth')) {
+        router.push('/auth/login');
+      }
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, pathname]);
 
   if (isLoading) {
     return (
@@ -26,5 +29,9 @@ export function ProtectedRoute({
     );
   }
 
-  return isAuthenticated ? <>{children}</> : null;
+  if (!isAuthenticated && !pathname.startsWith('/auth')) {
+    return null;
+  }
+
+  return <>{children}</>;
 }

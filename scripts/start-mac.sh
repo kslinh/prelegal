@@ -57,7 +57,7 @@ if docker run -d \
     echo "Prelegal is running!"
     echo "═══════════════════════════════════════"
     echo ""
-    echo "Backend API: http://localhost:8000"
+    echo "Application: http://localhost:8000"
     echo "API Docs:    http://localhost:8000/docs"
     echo "Health:      http://localhost:8000/health"
     echo ""

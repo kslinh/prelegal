@@ -31,15 +31,17 @@ RUN pip install --no-cache-dir \
 # Copy frontend
 COPY frontend ./frontend
 
-# Build frontend
+# Build frontend as static export
 WORKDIR /app/frontend
-RUN npm install && npm run build
+RUN npm install && npm run build && cp -r out /app/frontend/static
 
 # Copy environment file
 COPY .env ./
 
-WORKDIR /app/backend
+# Copy startup script
+COPY start.sh ./
+RUN chmod +x ./start.sh
 
 EXPOSE 8000
 
-CMD ["python3", "main.py"]
+CMD ["./start.sh"]

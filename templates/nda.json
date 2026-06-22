@@ -15,7 +15,7 @@
     {
       "id": "obligations",
       "title": "Obligations of Receiving Party",
-      "content": "The Receiving Party agrees to: (a) Hold Confidential Information in strict confidence; (b) Not disclose Confidential Information to any third party without the prior written consent of the Disclosing Party; (c) Use Confidential Information solely for the Purpose and not for any other purpose; (d) Protect Confidential Information using reasonable safeguards that are at least as protective as those used to protect its own confidential information.",
+      "content": "The Receiving Party agrees to: (a) Hold Confidential Information in strict confidence; (b) Not disclose Confidential Information to any third party without the prior written consent of the Disclosing Party; (c) Use Confidential Information solely for the Purpose of [Purpose] and not for any other purpose; (d) Protect Confidential Information using reasonable safeguards that are at least as protective as those used to protect its own confidential information.",
       "required": true,
       "modifiable": true
     },
@@ -36,7 +36,7 @@
     {
       "id": "term",
       "title": "Term",
-      "content": "This Agreement shall commence on the Effective Date and shall continue for a period of [Term], unless earlier terminated by either party upon thirty (30) days' written notice. The confidentiality obligations shall survive termination for a period of [Survival Period].",
+      "content": "This Agreement shall commence on [Effective Date] (the \"Effective Date\") and shall continue for a period of [Term], unless earlier terminated by either party upon thirty (30) days' written notice. The confidentiality obligations shall survive termination for a period of [Survival Period].",
       "required": true,
       "modifiable": true
     },
@@ -66,26 +66,55 @@
     {
       "name": "Purpose",
       "placeholder": "[purpose of disclosure]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Effective Date",
       "placeholder": "[date]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Term",
       "placeholder": "[e.g., 2 years]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Survival Period",
       "placeholder": "[e.g., 3 years after termination]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Jurisdiction",
-      "placeholder": "[state/jurisdiction]",
+      "placeholder": "Select a jurisdiction...",
+      "type": "select",
+      "options": [
+        "California",
+        "Delaware",
+        "Florida",
+        "Illinois",
+        "New York",
+        "Pennsylvania",
+        "Texas",
+        "Washington",
+        "United Kingdom (English Law)",
+        "Canada",
+        "Australia",
+        "India",
+        "Singapore",
+        "Hong Kong",
+        "Japan",
+        "South Korea",
+        "UAE (Dubai)",
+        "New Zealand",
+        "Ireland",
+        "Mexico",
+        "Brazil",
+        "Vietnam"
+      ],
       "required": true
     }
   ]

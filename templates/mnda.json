@@ -9,7 +9,7 @@
     {
       "id": "intro",
       "title": "Introduction",
-      "content": "This Mutual Non-Disclosure Agreement (which incorporates these Standard Terms and the Cover Page) (\"MNDA\") allows each party (\"Disclosing Party\") to disclose or make available information in connection with the Purpose which (1) the Disclosing Party identifies to the receiving party (\"Receiving Party\") as \"confidential\", \"proprietary\", or the like or (2) should be reasonably understood as confidential or proprietary due to its nature and the circumstances of its disclosure (\"Confidential Information\"). Each party's Confidential Information also includes the existence and status of the parties' discussions and information on the Cover Page. Confidential Information includes technical or business information, product designs or roadmaps, requirements, pricing, security and compliance documentation, technology, inventions and know-how. To use this MNDA, the parties must complete and sign a cover page incorporating these Standard Terms (\"Cover Page\"). Each party is identified on the Cover Page and capitalized terms have the meanings given herein or on the Cover Page.",
+      "content": "This Mutual Non-Disclosure Agreement (which incorporates these Standard Terms and the Cover Page) (\"MNDA\") allows each party (\"Disclosing Party\") to disclose or make available information in connection with the Purpose of [Purpose] which (1) the Disclosing Party identifies to the receiving party (\"Receiving Party\") as \"confidential\", \"proprietary\", or the like or (2) should be reasonably understood as confidential or proprietary due to its nature and the circumstances of its disclosure (\"Confidential Information\"). Each party's Confidential Information also includes the existence and status of the parties' discussions and information on the Cover Page. Confidential Information includes technical or business information, product designs or roadmaps, requirements, pricing, security and compliance documentation, technology, inventions and know-how. To use this MNDA, the parties must complete and sign a cover page incorporating these Standard Terms (\"Cover Page\"). Each party is identified on the Cover Page and capitalized terms have the meanings given herein or on the Cover Page.",
       "required": true,
       "modifiable": false
     },
@@ -37,7 +37,7 @@
     {
       "id": "term",
       "title": "Term and Termination",
-      "content": "This MNDA commences on the Effective Date and expires at the end of the MNDA Term. Either party may terminate this MNDA for any or no reason upon written notice to the other party. The Receiving Party's obligations relating to Confidential Information will survive for the Term of Confidentiality, despite any expiration or termination of this MNDA.",
+      "content": "This MNDA commences on [Effective Date] (the \"Effective Date\") and expires at the end of [MNDA Term]. Either party may terminate this MNDA for any or no reason upon written notice to the other party. The Receiving Party's obligations relating to Confidential Information will survive for [Term of Confidentiality], despite any expiration or termination of this MNDA.",
       "required": true,
       "modifiable": true
     },
@@ -88,31 +88,85 @@
     {
       "name": "Purpose",
       "placeholder": "[purpose of the agreement]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Effective Date",
       "placeholder": "[date]",
+      "type": "text",
       "required": true
     },
     {
       "name": "MNDA Term",
       "placeholder": "[duration, e.g., 2 years]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Term of Confidentiality",
       "placeholder": "[duration, e.g., 3 years]",
+      "type": "text",
       "required": true
     },
     {
       "name": "Governing Law",
-      "placeholder": "[state/jurisdiction]",
+      "placeholder": "Select a jurisdiction...",
+      "type": "select",
+      "options": [
+        "California",
+        "Delaware",
+        "Florida",
+        "Illinois",
+        "New York",
+        "Pennsylvania",
+        "Texas",
+        "Washington",
+        "United Kingdom (English Law)",
+        "Canada",
+        "Australia",
+        "India",
+        "Singapore",
+        "Hong Kong",
+        "Japan",
+        "South Korea",
+        "UAE (Dubai)",
+        "New Zealand",
+        "Ireland",
+        "Mexico",
+        "Brazil",
+        "Vietnam"
+      ],
       "required": true
     },
     {
       "name": "Jurisdiction",
-      "placeholder": "[courts location]",
+      "placeholder": "Select a court location...",
+      "type": "select",
+      "options": [
+        "California",
+        "Delaware",
+        "Florida",
+        "Illinois",
+        "New York",
+        "Pennsylvania",
+        "Texas",
+        "Washington",
+        "United Kingdom (English Law)",
+        "Canada",
+        "Australia",
+        "India",
+        "Singapore",
+        "Hong Kong",
+        "Japan",
+        "South Korea",
+        "UAE (Dubai)",
+        "New Zealand",
+        "Ireland",
+        "Mexico",
+        "Brazil",
+        "Vietnam"
+      ],
       "required": true
     }
   ]

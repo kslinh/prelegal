@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTemplateContext } from '@/context/TemplateContext';
+import NDAChat from './NDAChat';
 
 interface NDAFormData {
   templateType: 'nda-001' | 'mnda-001' | 'nda-comprehensive';
@@ -74,6 +75,7 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<NDAFormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState<'summary' | 'chat'>('summary');
   const { dispatch } = useTemplateContext();
 
   const handleInputChange = (field: keyof NDAFormData, value: string) => {
@@ -515,9 +517,36 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
             </div>
           </div>
 
-          {/* Right Side - Preview Summary */}
+          {/* Right Side - Preview Summary or Chat */}
           <div className="hidden lg:block">
-            <div className="sticky top-24 space-y-6">
+            <div className="sticky top-24">
+              {/* Tabs */}
+              <div className="flex gap-2 mb-4 bg-gray-100 p-1 rounded-lg">
+                <button
+                  onClick={() => setActiveTab('summary')}
+                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === 'summary'
+                      ? 'bg-white text-gray-900 shadow'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Summary
+                </button>
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === 'chat'
+                      ? 'bg-white text-gray-900 shadow'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  AI Assistant
+                </button>
+              </div>
+
+              {/* Summary Tab */}
+              {activeTab === 'summary' && (
+              <div className="space-y-6">
               {/* Summary Card */}
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Summary</h3>
@@ -635,6 +664,22 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
                   </div>
                 </div>
               </div>
+              </div>
+              )}
+
+              {/* Chat Tab */}
+              {activeTab === 'chat' && (
+              <NDAChat
+                formData={formData}
+                onFieldsExtracted={(fields) => {
+                  Object.entries(fields).forEach(([key, value]) => {
+                    if (value) {
+                      handleInputChange(key as keyof NDAFormData, value);
+                    }
+                  });
+                }}
+              />
+              )}
             </div>
           </div>
         </div>

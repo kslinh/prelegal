@@ -87,3 +87,36 @@ class TemplateResponse(BaseModel):
     category: str
     version: str
     customization_fields: list = []
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ExtractedNDAFields(BaseModel):
+    templateType: Optional[str] = None
+    disclosingPartyName: Optional[str] = None
+    disclosingPartyType: Optional[str] = None
+    disclosingPartyAddress: Optional[str] = None
+    receivingPartyName: Optional[str] = None
+    receivingPartyType: Optional[str] = None
+    receivingPartyAddress: Optional[str] = None
+    effectiveDate: Optional[str] = None
+    purpose: Optional[str] = None
+    jurisdiction: Optional[str] = None
+    termDuration: Optional[str] = None
+    terminationNotice: Optional[str] = None
+    survivalPeriod: Optional[str] = None
+    returnPeriod: Optional[str] = None
+    technicalSurvivalPeriod: Optional[str] = None
+
+
+class NDACharRequest(BaseModel):
+    messages: list[ChatMessage]
+    current_fields: dict
+
+
+class NDACharResponse(BaseModel):
+    reply: str
+    extracted_fields: ExtractedNDAFields

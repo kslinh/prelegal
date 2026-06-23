@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DocumentChat from '@/components/DocumentChat';
 import { useTemplateContext } from '@/context/TemplateContext';
-import { Template, CustomizableField } from '@/types/template';
+import { Template } from '@/types/template';
 import { apiFetch } from '@/lib/api';
 
 interface ChatClientProps {

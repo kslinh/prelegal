@@ -39,7 +39,9 @@ RUN pip install --no-cache-dir \
     python-multipart==0.0.6 \
     python-dotenv==1.0.0 \
     litellm==1.40.0 \
-    email-validator==2.1.0
+    email-validator==2.1.0 \
+    bcrypt==4.1.1 \
+    python-jose[cryptography]==3.3.0
 
 # ---------------------------------------------------------------------------
 # Stage 3: runtime — Python only, no Node, no build tools, no node_modules

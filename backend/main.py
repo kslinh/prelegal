@@ -8,7 +8,7 @@ import json
 
 from app.config import settings
 from app.database import engine, Base, get_db
-from app.models import Document, Favorite
+from app.models import Document, Favorite, User
 from app.schemas import (
     Document as DocumentSchema,
     DocumentCreate,
@@ -17,6 +17,9 @@ from app.schemas import (
     FavoriteBase,
     MessageResponse,
 )
+from app.auth import get_current_user, get_current_user_optional
+from app.routes.auth import router as auth_router
+from app.routes.users import router as users_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,6 +32,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(auth_router)
+app.include_router(users_router)
 
 # Serve Next.js static exported files
 frontend_static_dir = "/app/frontend/out"
@@ -75,19 +82,37 @@ def get_template(template_id: str):
 
 @app.get("/documents", response_model=list[DocumentSchema])
 def list_documents(
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
-    documents = db.query(Document).filter(Document.user_email == email).all()
+    if current_user_id:
+        documents = db.query(Document).filter(Document.user_id == current_user_id).all()
+    elif email:
+        documents = db.query(Document).filter(Document.user_email == email).all()
+    else:
+        raise HTTPException(status_code=401, detail="Authentication required")
     return documents
 
 @app.post("/documents", response_model=DocumentSchema)
 def create_document(
     doc: DocumentCreate,
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
+    user_id = None
+    if current_user_id:
+        user_id = current_user_id
+    elif email:
+        user = db.query(User).filter(User.email == email).first()
+        user_id = user.id if user else None
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     new_doc = Document(
+        user_id=user_id,
         user_email=email,
         template_id=doc.template_id,
         title=doc.title,
@@ -102,13 +127,18 @@ def create_document(
 @app.get("/documents/{doc_id}", response_model=DocumentSchema)
 def get_document(
     doc_id: int,
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
-    doc = db.query(Document).filter(
-        Document.id == doc_id,
-        Document.user_email == email,
-    ).first()
+    query = db.query(Document).filter(Document.id == doc_id)
+    if current_user_id:
+        doc = query.filter(Document.user_id == current_user_id).first()
+    elif email:
+        doc = query.filter(Document.user_email == email).first()
+    else:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
     return doc
@@ -117,13 +147,18 @@ def get_document(
 def update_document(
     doc_id: int,
     doc_update: DocumentUpdate,
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
-    doc = db.query(Document).filter(
-        Document.id == doc_id,
-        Document.user_email == email,
-    ).first()
+    query = db.query(Document).filter(Document.id == doc_id)
+    if current_user_id:
+        doc = query.filter(Document.user_id == current_user_id).first()
+    elif email:
+        doc = query.filter(Document.user_email == email).first()
+    else:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
@@ -141,13 +176,18 @@ def update_document(
 @app.delete("/documents/{doc_id}", response_model=MessageResponse)
 def delete_document(
     doc_id: int,
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
-    doc = db.query(Document).filter(
-        Document.id == doc_id,
-        Document.user_email == email,
-    ).first()
+    query = db.query(Document).filter(Document.id == doc_id)
+    if current_user_id:
+        doc = query.filter(Document.user_id == current_user_id).first()
+    elif email:
+        doc = query.filter(Document.user_email == email).first()
+    else:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
@@ -157,26 +197,43 @@ def delete_document(
 
 @app.get("/favorites", response_model=list[FavoriteSchema])
 def list_favorites(
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
-    favorites = db.query(Favorite).filter(Favorite.user_email == email).all()
+    if current_user_id:
+        favorites = db.query(Favorite).filter(Favorite.user_id == current_user_id).all()
+    elif email:
+        favorites = db.query(Favorite).filter(Favorite.user_email == email).all()
+    else:
+        raise HTTPException(status_code=401, detail="Authentication required")
     return favorites
 
 @app.post("/favorites", response_model=FavoriteSchema)
 def add_favorite(
     fav: FavoriteBase,
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
+    user_id = None
+    if current_user_id:
+        user_id = current_user_id
+    elif email:
+        user = db.query(User).filter(User.email == email).first()
+        user_id = user.id if user else None
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     existing = db.query(Favorite).filter(
-        Favorite.user_email == email,
+        Favorite.user_id == user_id,
         Favorite.template_id == fav.template_id,
     ).first()
     if existing:
         raise HTTPException(status_code=400, detail="Already in favorites")
 
-    new_fav = Favorite(user_email=email, template_id=fav.template_id)
+    new_fav = Favorite(user_id=user_id, user_email=email, template_id=fav.template_id)
     db.add(new_fav)
     db.commit()
     db.refresh(new_fav)
@@ -185,13 +242,18 @@ def add_favorite(
 @app.delete("/favorites/{template_id}", response_model=MessageResponse)
 def remove_favorite(
     template_id: str,
-    email: str = Query(...),
+    email: str = Query(None),
+    current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
-    fav = db.query(Favorite).filter(
-        Favorite.user_email == email,
-        Favorite.template_id == template_id,
-    ).first()
+    query = db.query(Favorite).filter(Favorite.template_id == template_id)
+    if current_user_id:
+        fav = query.filter(Favorite.user_id == current_user_id).first()
+    elif email:
+        fav = query.filter(Favorite.user_email == email).first()
+    else:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     if not fav:
         raise HTTPException(status_code=404, detail="Favorite not found")
 

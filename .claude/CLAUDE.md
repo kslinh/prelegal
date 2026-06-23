@@ -4,11 +4,17 @@
 
 This is a SaaS product to allow users to draft legal agreements based on templates in the templates directory.
 The user can carry out AI chat in order to establish what document they want and how to fill in the fields.
-The available documents are covered in the catalog.json file in the project root, included here:
+The available documents are covered in templates/index.json, included here:
 
-@catalog.json
+@templates/index.json
 
-The current implementation supports all 11 document types via AI chat with full user authentication and document persistence.
+The current implementation supports the following templates via AI chat with full user authentication and document persistence:
+- Mutual Non-Disclosure Agreement (MNDA)
+- Non-Disclosure Agreement (NDA)
+- Comprehensive Non-Disclosure Agreement
+- Service Agreement
+
+The chat-first interface leverages structured output from LLMs to extract document fields naturally from conversation.
 
 ## Development process
 

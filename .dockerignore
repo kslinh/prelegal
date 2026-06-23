@@ -1,7 +1,14 @@
 .git
 .gitignore
 .claude
-.env.local
+
+# Secrets — provided at runtime via --env-file, never baked into the image
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+
 *.pyc
 __pycache__
 .pytest_cache
@@ -17,3 +24,8 @@ npm-debug.log
 *.swo
 test.db
 data.db
+backend/venv
+backend/data.db
+backend/tests
+frontend/out
+frontend/static

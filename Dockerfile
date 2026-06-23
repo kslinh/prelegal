@@ -1,23 +1,35 @@
-FROM python:3.9-slim
+# syntax=docker/dockerfile:1
 
-WORKDIR /app
+# ---------------------------------------------------------------------------
+# Stage 1: build the Next.js static export (needs Node, only at build time)
+# ---------------------------------------------------------------------------
+FROM node:20-slim AS frontend-builder
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
+WORKDIR /app/frontend
+
+# Install deps first for better layer caching
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+# Templates are read by generateStaticParams() at build time (../templates)
+COPY templates /app/templates
+COPY frontend ./
+
+# Produces /app/frontend/out (the static export served by the backend)
+RUN npm run build
+
+# ---------------------------------------------------------------------------
+# Stage 2: install Python deps into a venv (build tools stay in this stage)
+# ---------------------------------------------------------------------------
+FROM python:3.12-slim AS python-builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js for frontend build
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g npm
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy templates and backend
-COPY templates ./templates
-COPY backend ./backend
-
-# Install backend dependencies
 RUN pip install --no-cache-dir \
     fastapi==0.115.0 \
     uvicorn[standard]==0.30.0 \
@@ -29,17 +41,25 @@ RUN pip install --no-cache-dir \
     litellm==1.40.0 \
     email-validator==2.1.0
 
-# Copy frontend
-COPY frontend ./frontend
+# ---------------------------------------------------------------------------
+# Stage 3: runtime — Python only, no Node, no build tools, no node_modules
+# ---------------------------------------------------------------------------
+FROM python:3.12-slim AS runtime
 
-# Build frontend as static export
-WORKDIR /app/frontend
-RUN npm install && npm run build && cp -r out /app/frontend/static
+WORKDIR /app
 
-# Copy environment file
-COPY .env ./
+# Virtualenv with the installed dependencies
+COPY --from=python-builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy startup script
+# Application code and data (.env is excluded via .dockerignore — secrets are
+# provided at runtime through --env-file, never baked into the image)
+COPY templates ./templates
+COPY backend ./backend
+
+# Only the static export from the frontend build — not node_modules or src
+COPY --from=frontend-builder /app/frontend/out ./frontend/out
+
 COPY start.sh ./
 RUN chmod +x ./start.sh
 

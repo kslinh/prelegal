@@ -94,29 +94,11 @@ class ChatMessage(BaseModel):
     content: str
 
 
-class ExtractedNDAFields(BaseModel):
-    templateType: Optional[str] = None
-    disclosingPartyName: Optional[str] = None
-    disclosingPartyType: Optional[str] = None
-    disclosingPartyAddress: Optional[str] = None
-    receivingPartyName: Optional[str] = None
-    receivingPartyType: Optional[str] = None
-    receivingPartyAddress: Optional[str] = None
-    effectiveDate: Optional[str] = None
-    purpose: Optional[str] = None
-    jurisdiction: Optional[str] = None
-    termDuration: Optional[str] = None
-    terminationNotice: Optional[str] = None
-    survivalPeriod: Optional[str] = None
-    returnPeriod: Optional[str] = None
-    technicalSurvivalPeriod: Optional[str] = None
-
-
-class NDACharRequest(BaseModel):
+class DocumentChatRequest(BaseModel):
     messages: list[ChatMessage]
-    current_fields: dict
+    current_fields: dict[str, str]
 
 
-class NDACharResponse(BaseModel):
+class DocumentChatResponse(BaseModel):
     reply: str
-    extracted_fields: ExtractedNDAFields
+    extracted_fields: dict[str, str]

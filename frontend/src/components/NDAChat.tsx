@@ -97,16 +97,21 @@ export default function NDAChat({ formData, onFieldsExtracted }: NDACharProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 flex flex-col h-[600px]">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">AI Assistant</h3>
+    <div className="bg-white rounded-lg shadow p-6 flex flex-col h-[800px]">
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold text-gray-900">Create Your Mutual NDA</h2>
+        <p className="text-sm text-gray-600 mt-1">Chat with our AI to build your agreement. We'll extract all the details automatically.</p>
+      </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto mb-4 space-y-3 border border-gray-200 rounded-lg p-4 bg-gray-50">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center">
+          <div className="flex flex-col items-center justify-center h-full text-center gap-4">
+            <div className="text-5xl">💬</div>
             <div>
-              <p className="text-sm text-gray-500 mb-2">👋 Start a conversation</p>
-              <p className="text-xs text-gray-400">Tell me about your NDA - who's involved, what you're sharing, and any specific terms you need.</p>
+              <p className="text-base font-semibold text-gray-900 mb-2">Start Your NDA</p>
+              <p className="text-sm text-gray-600 max-w-xs">Describe the two parties, what you're sharing, and any specific terms. Example:</p>
+              <p className="text-xs text-blue-600 mt-3 italic max-w-xs">"TechCorp Inc (a Delaware corporation) is sharing source code with Acme Corp. We need a 2-year mutual NDA governed by California law."</p>
             </div>
           </div>
         ) : (

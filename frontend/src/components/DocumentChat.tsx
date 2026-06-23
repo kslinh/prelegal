@@ -3,40 +3,29 @@
 import { useState, useRef, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 
-interface NDAFormData {
-  templateType: 'nda-001' | 'mnda-001' | 'nda-comprehensive';
-  disclosingPartyName: string;
-  disclosingPartyType: 'corporation' | 'llc' | 'individual' | 'partnership';
-  disclosingPartyAddress: string;
-  receivingPartyName: string;
-  receivingPartyType: 'corporation' | 'llc' | 'individual' | 'partnership';
-  receivingPartyAddress: string;
-  effectiveDate: string;
-  purpose: string;
-  jurisdiction: string;
-  termDuration: string;
-  terminationNotice: string;
-  survivalPeriod: string;
-  returnPeriod: string;
-  technicalSurvivalPeriod?: string;
-}
-
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
 }
 
-interface NDACharResponse {
+interface DocumentChatResponse {
   reply: string;
   extracted_fields: Record<string, string>;
 }
 
-interface NDACharProps {
-  formData: NDAFormData;
-  onFieldsExtracted: (fields: Partial<NDAFormData>) => void;
+interface DocumentChatProps {
+  templateId: string;
+  templateName: string;
+  currentFields: Record<string, string>;
+  onFieldsExtracted: (fields: Record<string, string>) => void;
 }
 
-export default function NDAChat({ formData, onFieldsExtracted }: NDACharProps) {
+export default function DocumentChat({
+  templateId,
+  templateName,
+  currentFields,
+  onFieldsExtracted
+}: DocumentChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -67,11 +56,11 @@ export default function NDAChat({ formData, onFieldsExtracted }: NDACharProps) {
     setError(null);
 
     try {
-      const response = await apiFetch('/api/chat/document/mnda-001', {
+      const response = await apiFetch(`/api/chat/document/${templateId}`, {
         method: 'POST',
         body: JSON.stringify({
           messages: [...messages, userMessage],
-          current_fields: formData,
+          current_fields: currentFields,
         }),
       });
 
@@ -79,7 +68,7 @@ export default function NDAChat({ formData, onFieldsExtracted }: NDACharProps) {
         throw new Error('Failed to get response from AI');
       }
 
-      const data: NDACharResponse = await response.json();
+      const data: DocumentChatResponse = await response.json();
 
       // Add assistant message
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
@@ -106,7 +95,7 @@ export default function NDAChat({ formData, onFieldsExtracted }: NDACharProps) {
   return (
     <div className="bg-white rounded-lg shadow p-6 flex flex-col h-[800px]">
       <div className="mb-4">
-        <h2 className="text-2xl font-bold text-[#032147]">Create Your Mutual NDA</h2>
+        <h2 className="text-2xl font-bold text-[#032147]">Create Your {templateName}</h2>
         <p className="text-sm text-gray-600 mt-1">Chat with our AI to build your agreement. We'll extract all the details automatically.</p>
       </div>
 
@@ -116,9 +105,9 @@ export default function NDAChat({ formData, onFieldsExtracted }: NDACharProps) {
           <div className="flex flex-col items-center justify-center h-full text-center gap-4">
             <div className="text-5xl">💬</div>
             <div>
-              <p className="text-base font-semibold text-gray-900 mb-2">Start Your NDA</p>
-              <p className="text-sm text-gray-600 max-w-xs">Describe the two parties, what you're sharing, and any specific terms. Example:</p>
-              <p className="text-xs text-blue-600 mt-3 italic max-w-xs">"TechCorp Inc (a Delaware corporation) is sharing source code with Acme Corp. We need a 2-year mutual NDA governed by California law."</p>
+              <p className="text-base font-semibold text-[#032147] mb-2">Start Your {templateName}</p>
+              <p className="text-sm text-gray-600 max-w-xs">Describe what you need for your agreement. Example:</p>
+              <p className="text-xs text-[#209dd7] mt-3 italic max-w-xs">"TechCorp Inc is sharing source code with Acme Corp. We need a 2-year mutual NDA governed by California law."</p>
             </div>
           </div>
         ) : (
@@ -164,7 +153,7 @@ export default function NDAChat({ formData, onFieldsExtracted }: NDACharProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask me about your NDA... (Shift+Enter for newline)"
+          placeholder="Tell me about your agreement... (Shift+Enter for newline)"
           disabled={isLoading}
           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#209dd7] disabled:opacity-50 disabled:cursor-not-allowed resize-none"
           rows={3}

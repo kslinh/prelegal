@@ -52,20 +52,22 @@ function entityTypeLabel(type: string): string {
   return ENTITY_TYPES.find(e => e.value === type)?.label || type;
 }
 
+const NDA_TYPE_LABELS = {
+  'mnda-001': 'Mutual NDA',
+  'nda-001': 'NDA',
+  'nda-comprehensive': 'Comprehensive NDA',
+};
+
 function calculateCompletion(formData: NDAFormData): number {
-  const fields = [
+  const requiredFields = [
     formData.disclosingPartyName,
     formData.receivingPartyName,
     formData.effectiveDate,
     formData.purpose,
     formData.jurisdiction,
-    formData.termDuration,
-    formData.terminationNotice,
-    formData.survivalPeriod,
-    formData.returnPeriod,
   ];
-  const filled = fields.filter(f => f && f.length > 0).length;
-  return Math.round((filled / fields.length) * 100);
+  const filled = requiredFields.filter(f => f && f.length > 0).length;
+  return Math.round((filled / requiredFields.length) * 100);
 }
 
 export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) => void }) {
@@ -133,13 +135,13 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
       <div className="sticky top-0 z-20 bg-white shadow-sm border-b border-gray-200">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div>
-            <Link href="/" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+            <Link href="/" className="text-[#209dd7] hover:text-[#1a7fb0] text-sm font-medium">
               ← Back to Dashboard
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900 mt-2">Mutual NDA Generator</h1>
+            <h1 className="text-2xl font-bold text-[#032147] mt-2">{NDA_TYPE_LABELS[formData.templateType]} Generator</h1>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-indigo-600">{completion}%</div>
+            <div className="text-3xl font-bold text-[#209dd7]">{completion}%</div>
             <div className="text-xs text-gray-600">Complete</div>
           </div>
         </div>
@@ -306,7 +308,7 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
               disabled={!isComplete || isGenerating}
               className={`w-full py-3 px-4 rounded-lg font-medium text-white flex items-center justify-center gap-2 transition-all ${
                 isComplete
-                  ? 'bg-green-600 hover:bg-green-700'
+                  ? 'bg-[#753991] hover:bg-[#5e2e73]'
                   : 'bg-gray-400 cursor-not-allowed'
               }`}
             >
@@ -323,7 +325,7 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Generate Mutual NDA
+                  Generate {NDA_TYPE_LABELS[formData.templateType]}
                 </>
               )}
             </button>

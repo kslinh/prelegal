@@ -81,9 +81,8 @@ const NDA_TYPE_LABELS = {
 };
 
 function calculateCompletion(formData: NDAFormData): number {
+  // Only require fields that the template can extract via AI
   const requiredFields = [
-    formData.disclosingPartyName,
-    formData.receivingPartyName,
     formData.effectiveDate,
     formData.purpose,
     formData.jurisdiction,

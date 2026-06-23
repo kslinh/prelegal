@@ -42,6 +42,27 @@ const EMPTY_FORM: NDAFormData = {
   returnPeriod: '30 days',
 };
 
+// Map template field names to form field names
+const TEMPLATE_FIELD_MAPPING: Record<string, keyof NDAFormData> = {
+  'Purpose': 'purpose',
+  'Purpose of Disclosure': 'purpose',
+  'Effective Date': 'effectiveDate',
+  'MNDA Term': 'termDuration',
+  'Agreement Term': 'termDuration',
+  'Term of Confidentiality': 'survivalPeriod',
+  'Governing Law': 'jurisdiction',
+  'Jurisdiction': 'jurisdiction',
+  'Disclosing Party': 'disclosingPartyName',
+  'Disclosing Party Entity Type': 'disclosingPartyType',
+  'Disclosing Party Address': 'disclosingPartyAddress',
+  'Receiving Party': 'receivingPartyName',
+  'Receiving Party Entity Type': 'receivingPartyType',
+  'Receiving Party Address': 'receivingPartyAddress',
+  'Termination Notice Period': 'terminationNotice',
+  'Return Period': 'returnPeriod',
+  'Technical Information Survival Period': 'technicalSurvivalPeriod',
+};
+
 const ENTITY_TYPES = [
   { value: 'corporation', label: 'Corporation' },
   { value: 'llc', label: 'LLC (Limited Liability Company)' },
@@ -217,7 +238,8 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
               onFieldsExtracted={(fields) => {
                 Object.entries(fields).forEach(([key, value]) => {
                   if (value) {
-                    handleInputChange(key as keyof NDAFormData, value);
+                    const formFieldName = TEMPLATE_FIELD_MAPPING[key] || (key.toLowerCase().replace(/\s+/g, '') as keyof NDAFormData);
+                    handleInputChange(formFieldName, value);
                   }
                 });
               }}

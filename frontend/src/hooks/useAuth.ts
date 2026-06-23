@@ -75,6 +75,7 @@ export function useAuth() {
       localStorage.setItem('session', JSON.stringify(newSession));
       setSession(newSession);
 
+      router.push('/');
       return newSession;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Signup failed';
@@ -120,6 +121,7 @@ export function useAuth() {
       localStorage.setItem('session', JSON.stringify(newSession));
       setSession(newSession);
 
+      router.push('/');
       return newSession;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Sign in failed';

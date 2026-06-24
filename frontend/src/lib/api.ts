@@ -18,19 +18,23 @@ export async function apiFetch(
     ...(options.headers as Record<string, string>),
   };
 
+  console.log(`[apiFetch] ${url}: token=${!!token}, localStorage=${!!localStorage.getItem('access_token')}, sessionStorage=${!!sessionStorage.getItem('access_token')}`);
+
   if (token && !url.includes('auth')) {
     headers['Authorization'] = `Bearer ${token}`;
-    if (url.includes('documents')) {
-      console.log(`[apiFetch] Sending token for ${url}: ${token.substring(0, 30)}...`);
-    }
-  } else {
-    if (url.includes('documents')) {
-      console.log(`[apiFetch] No token for ${url}. localStorage: ${!!localStorage.getItem('access_token')}, sessionStorage: ${!!sessionStorage.getItem('access_token')}`);
-    }
+    console.log(`[apiFetch] Added Authorization header: Bearer ${token.substring(0, 30)}...`);
+  } else if (!token) {
+    console.log(`[apiFetch] No token found in storage`);
   }
 
-  return fetch(finalUrl.toString(), {
+  const response = await fetch(finalUrl.toString(), {
     ...options,
     headers,
   });
+
+  if (url.includes('documents')) {
+    console.log(`[apiFetch] Response for ${url}: ${response.status}`);
+  }
+
+  return response;
 }

@@ -77,11 +77,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         access_token,
       };
 
-      console.log('[AuthContext] Signup - storing session in sessionStorage:', user.email);
+      console.log('[AuthContext] Signup - storing session:', user.email);
       sessionStorage.setItem('access_token', access_token);
       sessionStorage.setItem('session', JSON.stringify(newSession));
-      console.log('[AuthContext] Signup - stored. Verifying:', {
-        tokenStored: !!sessionStorage.getItem('access_token'),
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('session', JSON.stringify(newSession));
+      console.log('[AuthContext] Signup - stored in both storages. Verifying:', {
+        tokenInSessionStorage: !!sessionStorage.getItem('access_token'),
+        tokenInLocalStorage: !!localStorage.getItem('access_token'),
         sessionStored: !!sessionStorage.getItem('session'),
       });
       setSession(newSession);
@@ -123,8 +126,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log(`[AuthContext] Login - storing session in ${storageName}:`, user.email);
       storage.setItem('access_token', access_token);
       storage.setItem('session', JSON.stringify(newSession));
-      console.log(`[AuthContext] Login - stored. Verifying in ${storageName}:`, {
-        tokenStored: !!storage.getItem('access_token'),
+      console.log(`[AuthContext] Login - stored in ${storageName}:`, {
+        tokenInSessionStorage: !!sessionStorage.getItem('access_token'),
+        tokenInLocalStorage: !!localStorage.getItem('access_token'),
         sessionStored: !!storage.getItem('session'),
       });
       setSession(newSession);

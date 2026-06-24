@@ -16,13 +16,26 @@ interface Document {
   customizations: string;
 }
 
-const fetcher = (url: string) => apiFetch(url).then(res => res.json());
+const fetcher = async (url: string) => {
+  const res = await apiFetch(url);
+  if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error('Unauthorized - please sign in again');
+    }
+    throw new Error(`Failed to fetch documents: ${res.status}`);
+  }
+  return res.json();
+};
 
 export default function DocumentsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { data: documents = [], mutate, isLoading: dataLoading } = useSWR<Document[]>(
+  const { data: documents = [], mutate, isLoading: dataLoading, error: fetchError } = useSWR<Document[]>(
     isAuthenticated ? '/documents' : null,
-    fetcher
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -37,10 +50,10 @@ export default function DocumentsPage() {
     }
   };
 
-  if (authLoading || dataLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-gray-600 dark:text-gray-400">Loading documents...</div>
+        <div className="text-gray-600 dark:text-gray-400">Checking authentication...</div>
       </div>
     );
   }
@@ -53,6 +66,30 @@ export default function DocumentsPage() {
           <Link href="/auth/login" className="text-[#209dd7] hover:text-[#209dd7]/80 font-medium">
             Go to login
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (dataLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">Loading documents...</div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 dark:text-red-400 mb-4">Error loading documents: {fetchError.message}</p>
+          <button
+            onClick={() => mutate()}
+            className="text-[#209dd7] hover:text-[#209dd7]/80 font-medium"
+          >
+            Try again
+          </button>
         </div>
       </div>
     );

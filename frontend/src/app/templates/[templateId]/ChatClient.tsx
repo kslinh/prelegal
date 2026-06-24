@@ -92,7 +92,8 @@ export default function ChatClient({ templateId }: ChatClientProps) {
       });
 
       if (!saveResponse.ok) {
-        throw new Error('Failed to save document');
+        const errorData = await saveResponse.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Failed to save document: ${saveResponse.statusText}`);
       }
 
       // Dispatch fields to context for preview
@@ -109,7 +110,8 @@ export default function ChatClient({ templateId }: ChatClientProps) {
       router.push(`/templates/${templateId}`);
     } catch (error) {
       console.error('Failed to generate document:', error);
-      alert('Failed to generate document. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to generate document: ${errorMsg}`);
     } finally {
       setIsGenerating(false);
     }

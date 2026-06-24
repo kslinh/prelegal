@@ -28,7 +28,7 @@ const fetcher = async (url: string) => {
 };
 
 export default function DocumentsPage() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, session } = useAuth();
   const { data: documents = [], mutate, isLoading: dataLoading, error: fetchError } = useSWR<Document[]>(
     isAuthenticated ? '/documents' : null,
     fetcher,
@@ -37,6 +37,21 @@ export default function DocumentsPage() {
       revalidateOnReconnect: false,
     }
   );
+
+  // Debug logging
+  if (typeof window !== 'undefined' && isAuthenticated) {
+    console.log('[DocumentsPage]', {
+      authenticated: isAuthenticated,
+      hasSession: !!session,
+      sessionUser: session?.email,
+      tokenInStorage: {
+        localStorage: !!localStorage.getItem('access_token'),
+        sessionStorage: !!sessionStorage.getItem('access_token'),
+      },
+      swrError: fetchError?.message,
+      swrLoading: dataLoading,
+    });
+  }
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
@@ -80,16 +95,23 @@ export default function DocumentsPage() {
   }
 
   if (fetchError) {
+    console.error('[DocumentsPage] Fetch error:', fetchError);
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">Error loading documents: {fetchError.message}</p>
-          <button
-            onClick={() => mutate()}
-            className="text-[#209dd7] hover:text-[#209dd7]/80 font-medium"
-          >
-            Try again
-          </button>
+        <div className="text-center max-w-md">
+          <p className="text-red-600 dark:text-red-400 mb-2 font-semibold">Error loading documents</p>
+          <p className="text-red-500 dark:text-red-300 text-sm mb-4 break-words">{fetchError.message}</p>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => mutate()}
+              className="text-[#209dd7] hover:text-[#209dd7]/80 font-medium"
+            >
+              Try again
+            </button>
+            <Link href="/" className="text-[#209dd7] hover:text-[#209dd7]/80 font-medium">
+              Go back
+            </Link>
+          </div>
         </div>
       </div>
     );

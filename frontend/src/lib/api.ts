@@ -20,6 +20,13 @@ export async function apiFetch(
 
   if (token && !url.includes('auth')) {
     headers['Authorization'] = `Bearer ${token}`;
+    if (url.includes('documents')) {
+      console.log(`[apiFetch] Sending token for ${url}: ${token.substring(0, 30)}...`);
+    }
+  } else {
+    if (url.includes('documents')) {
+      console.log(`[apiFetch] No token for ${url}. localStorage: ${!!localStorage.getItem('access_token')}, sessionStorage: ${!!sessionStorage.getItem('access_token')}`);
+    }
   }
 
   return fetch(finalUrl.toString(), {

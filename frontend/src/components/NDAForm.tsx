@@ -176,8 +176,22 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
       });
 
       if (!saveResponse.ok) {
-        const errorData = await saveResponse.json();
-        throw new Error(errorData.detail || 'Failed to save document');
+        let errorMsg = `HTTP ${saveResponse.status}: ${saveResponse.statusText}`;
+        try {
+          const errorData = await saveResponse.json();
+          if (typeof errorData === 'object' && errorData !== null) {
+            if ('detail' in errorData) {
+              errorMsg = Array.isArray(errorData.detail)
+                ? (errorData.detail as any[]).map(e => e.msg || JSON.stringify(e)).join('; ')
+                : String(errorData.detail);
+            } else {
+              errorMsg = JSON.stringify(errorData);
+            }
+          }
+        } catch {
+          // Use default error message
+        }
+        throw new Error(`Failed to save document: ${errorMsg}`);
       }
 
       // Dispatch fields to context for preview

@@ -18,6 +18,7 @@ export default function ChatClient({ templateId }: ChatClientProps) {
   const [formFields, setFormFields] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const { dispatch } = useTemplateContext();
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function ChatClient({ templateId }: ChatClientProps) {
 
   const handleFieldsExtracted = (extractedFields: Record<string, string>) => {
     setFormFields(prev => ({ ...prev, ...extractedFields }));
+    setGenerationError(null);
   };
 
   const calculateCompletion = (): number => {
@@ -62,6 +64,7 @@ export default function ChatClient({ templateId }: ChatClientProps) {
   const handleGenerate = async () => {
     if (!template) return;
     setIsGenerating(true);
+    setGenerationError(null);
 
     try {
       // Apply customizations to template sections
@@ -84,21 +87,48 @@ export default function ChatClient({ templateId }: ChatClientProps) {
       const timestamp = new Date().toISOString().split('T')[0];
       const documentTitle = `${template.name} - ${timestamp}`;
 
-      // Save document
+      // Serialize customizations as JSON string
+      const customizationsString = JSON.stringify(formFields);
+
+      console.log('Sending document creation request:', {
+        template_id: templateId,
+        title: documentTitle,
+        content_length: documentContent.length,
+        customizations_length: customizationsString.length,
+      });
+
+      // Save document with explicit JSON string for customizations
       const saveResponse = await apiFetch('/documents', {
         method: 'POST',
         body: JSON.stringify({
           template_id: templateId,
           title: documentTitle,
           content: documentContent,
-          customizations: JSON.stringify(formFields),
+          customizations: customizationsString,
         }),
       });
 
       if (!saveResponse.ok) {
-        const errorData = await saveResponse.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Failed to save document: ${saveResponse.statusText}`);
+        let errorMsg = `HTTP ${saveResponse.status}: ${saveResponse.statusText}`;
+        try {
+          const errorData = await saveResponse.json();
+          if (typeof errorData === 'object' && errorData !== null) {
+            if ('detail' in errorData) {
+              errorMsg = Array.isArray(errorData.detail)
+                ? (errorData.detail as any[]).map(e => e.msg || JSON.stringify(e)).join('; ')
+                : String(errorData.detail);
+            } else {
+              errorMsg = JSON.stringify(errorData);
+            }
+          }
+        } catch {
+          // Use default error message if JSON parsing fails
+        }
+        throw new Error(`Failed to save document: ${errorMsg}`);
       }
+
+      const responseData = await saveResponse.json();
+      console.log('Document created successfully:', responseData.id);
 
       // Dispatch fields to context for preview
       for (const [fieldName, fieldValue] of Object.entries(formFields)) {
@@ -113,9 +143,9 @@ export default function ChatClient({ templateId }: ChatClientProps) {
       // Navigate to template viewer
       router.push(`/templates/${templateId}`);
     } catch (error) {
-      console.error('Failed to generate document:', error);
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      alert(`Failed to generate document: ${errorMsg}`);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('Failed to generate document:', errorMsg);
+      setGenerationError(errorMsg);
     } finally {
       setIsGenerating(false);
     }
@@ -207,6 +237,15 @@ export default function ChatClient({ templateId }: ChatClientProps) {
               </div>
             </div>
 
+            {/* Error message */}
+            {generationError && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 rounded-lg">
+                <p className="text-xs text-red-800">
+                  <strong>Error:</strong> {generationError}
+                </p>
+              </div>
+            )}
+
             {/* Generate button */}
             <button
               onClick={handleGenerate}
@@ -219,6 +258,12 @@ export default function ChatClient({ templateId }: ChatClientProps) {
             >
               {isGenerating ? 'Generating...' : `Generate ${template.name}`}
             </button>
+
+            {!canGenerate && !isGenerating && (
+              <p className="text-xs text-gray-600 text-center mt-2">
+                Complete all required fields to enable generation
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { apiFetch } from '@/lib/api';
 import useSWR from 'swr';
@@ -35,8 +35,17 @@ export default function DocumentsPage() {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
+      dedupingInterval: 0,
+      focusThrottleInterval: 0,
     }
   );
+
+  // Refetch documents when authentication state changes
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      mutate();
+    }
+  }, [isAuthenticated, authLoading, mutate]);
 
   // Debug logging
   if (typeof window !== 'undefined' && isAuthenticated) {

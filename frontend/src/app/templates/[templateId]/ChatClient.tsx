@@ -80,12 +80,16 @@ export default function ChatClient({ templateId }: ChatClientProps) {
         .map((s: any) => `${s.title ? `## ${s.title}\n\n` : ''}${s.content || ''}`)
         .join('\n\n');
 
+      // Generate unique title with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const documentTitle = `${template.name} - ${timestamp}`;
+
       // Save document
       const saveResponse = await apiFetch('/documents', {
         method: 'POST',
         body: JSON.stringify({
           template_id: templateId,
-          title: `${template.name}`,
+          title: documentTitle,
           content: documentContent,
           customizations: JSON.stringify(formFields),
         }),

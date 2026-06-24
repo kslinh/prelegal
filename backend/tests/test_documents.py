@@ -148,3 +148,38 @@ def test_get_other_users_document(client, auth_headers):
     # User 2 tries to access User 1's document
     response = client.get(f"/documents/{doc_id}", headers=headers2)
     assert response.status_code == 404
+
+def test_create_document_with_long_content(client, auth_headers):
+    """Test creating a document with very long content."""
+    long_content = "Test content. " * 50000  # Create ~700KB of content
+    response = client.post(
+        "/documents",
+        headers=auth_headers,
+        json={
+            "template_id": "nda-001",
+            "title": "Long Content Test",
+            "content": long_content,
+            "customizations": "{}",
+        },
+    )
+    # Should succeed - SQLite can handle large text fields
+    assert response.status_code == 200
+    assert "id" in response.json()
+
+
+def test_create_document_with_very_long_title(client, auth_headers):
+    """Test creating a document with a very long title."""
+    long_title = "A" * 10000  # 10KB title
+    response = client.post(
+        "/documents",
+        headers=auth_headers,
+        json={
+            "template_id": "nda-001",
+            "title": long_title,
+            "content": "Test content",
+            "customizations": "{}",
+        },
+    )
+    # Should succeed
+    assert response.status_code == 200
+    assert "id" in response.json()

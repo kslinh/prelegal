@@ -127,7 +127,17 @@ export default function ChatClient({ templateId }: ChatClientProps) {
         throw new Error(`Failed to save document: ${errorMsg}`);
       }
 
-      const responseData = await saveResponse.json();
+      let responseData;
+      try {
+        responseData = await saveResponse.json();
+      } catch (parseError) {
+        const parseErrorMsg = parseError instanceof Error ? parseError.message : 'Unknown parsing error';
+        throw new Error(
+          `Failed to parse document response: ${parseErrorMsg}. ` +
+          `Response status: ${saveResponse.status}, Content-Type: ${saveResponse.headers.get('content-type')}`
+        );
+      }
+
       console.log('Document created successfully:', responseData.id);
 
       // Dispatch fields to context for preview

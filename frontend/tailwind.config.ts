@@ -6,8 +6,19 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand: {
+          blue: '#209dd7',
+          purple: '#753991',
+          yellow: '#ecad0a',
+          navy: '#032147',
+          gray: '#888888',
+        },
+      },
+    },
   },
   plugins: [],
 };

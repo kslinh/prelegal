@@ -41,7 +41,8 @@ RUN pip install --no-cache-dir \
     litellm==1.40.0 \
     email-validator==2.1.0 \
     bcrypt==4.1.1 \
-    python-jose[cryptography]==3.3.0
+    python-jose[cryptography]==3.3.0 \
+    alembic==1.13.1
 
 # ---------------------------------------------------------------------------
 # Stage 3: runtime — Python only, no Node, no build tools, no node_modules
@@ -49,6 +50,10 @@ RUN pip install --no-cache-dir \
 FROM python:3.12-slim AS runtime
 
 WORKDIR /app
+
+# Create data directory for persistent SQLite database
+RUN mkdir -p /app/data
+VOLUME /app/data
 
 # Virtualenv with the installed dependencies
 COPY --from=python-builder /opt/venv /opt/venv

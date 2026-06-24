@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import { TemplateProvider } from '@/context/TemplateContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Header } from '@/components/Header';
@@ -15,14 +17,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <ProtectedRoute>
-          <TemplateProvider>
-            <Header />
-            {children}
-          </TemplateProvider>
-        </ProtectedRoute>
+        <AuthProvider>
+          <ThemeProvider>
+            <ProtectedRoute>
+              <TemplateProvider>
+                <Header />
+                {children}
+              </TemplateProvider>
+            </ProtectedRoute>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

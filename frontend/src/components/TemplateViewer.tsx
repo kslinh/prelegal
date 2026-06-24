@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Template } from '@/types/template';
 import { useTemplateContext } from '@/context/TemplateContext';
 import { applyCustomizations, downloadFile, getCategoryColor, downloadPdf } from '@/lib/utils';
+import { DRAFT_DISCLAIMER } from '@/lib/disclaimer';
 
 interface TemplateViewerProps {
   template: Template;
@@ -45,7 +46,12 @@ export default function TemplateViewer({ template }: TemplateViewerProps) {
   };
 
   const handleDownloadJson = () => {
-    const json = JSON.stringify(template, null, 2);
+    const output = {
+      disclaimer: DRAFT_DISCLAIMER,
+      generatedAt: new Date().toISOString(),
+      document: template,
+    };
+    const json = JSON.stringify(output, null, 2);
     downloadFile(json, `${template.id}.json`, 'application/json');
   };
 

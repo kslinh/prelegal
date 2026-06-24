@@ -6,7 +6,10 @@ export async function apiFetch(
   url: string,
   options: FetchOptions = {}
 ): Promise<Response> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  let token = null;
+  if (typeof window !== 'undefined') {
+    token = localStorage.getItem('access_token') ?? sessionStorage.getItem('access_token');
+  }
   const email = options.email || (typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null);
 
   const finalUrl = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');

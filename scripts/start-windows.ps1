@@ -50,6 +50,7 @@ $containerOutput = docker run -d `
     --name prelegal `
     -p 8000:8000 `
     --env-file .env `
+    -v prelegal-data:/app/data `
     prelegal:latest 2>&1
 
 if ($LASTEXITCODE -eq 0) {

@@ -23,11 +23,13 @@ class User(UserBase):
 class SignInRequest(BaseModel):
     email: EmailStr
     password: str
+    remember_me: bool = False
 
 
 class SignInResponse(BaseModel):
     access_token: str
     token_type: str
+    user: "User"
 
 
 class TokenData(BaseModel):

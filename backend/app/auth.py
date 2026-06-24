@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import Depends, HTTPException, status, Request, Query
+from fastapi import HTTPException, status, Request
 from jose import JWTError, jwt
 import bcrypt
-from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.schemas import TokenData
@@ -93,36 +92,7 @@ async def get_current_user_optional(request: Request) -> Optional[int]:
 
     token_data = verify_token(token)
     if token_data is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return None
     return token_data.user_id
 
 
-async def resolve_user_id(
-    request: Request,
-    email: Optional[str] = Query(None),
-    db: Session = Depends(lambda: None),
-) -> int:
-    current_user_id = await get_current_user_optional(request)
-    if current_user_id:
-        return current_user_id
-
-    if email:
-        from app.models import User
-        from app.database import SessionLocal
-        if db is None:
-            db = SessionLocal()
-        try:
-            user = db.query(User).filter(User.email == email).first()
-            if user:
-                return user.id
-        finally:
-            db.close()
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Authentication required"
-    )

@@ -73,8 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         access_token,
       };
 
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('session', JSON.stringify(newSession));
+      sessionStorage.setItem('access_token', access_token);
+      sessionStorage.setItem('session', JSON.stringify(newSession));
       setSession(newSession);
 
       router.push('/');

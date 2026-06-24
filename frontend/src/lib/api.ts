@@ -10,14 +10,8 @@ export async function apiFetch(
   if (typeof window !== 'undefined') {
     token = localStorage.getItem('access_token') ?? sessionStorage.getItem('access_token');
   }
-  const email = options.email || (typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null);
 
   const finalUrl = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-
-  // For backward compatibility, still support email query param
-  if (email && !url.includes('auth') && !token) {
-    finalUrl.searchParams.set('email', email);
-  }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

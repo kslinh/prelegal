@@ -24,13 +24,19 @@ export function ProtectedRoute({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
 
   if (!isAuthenticated && !pathname.startsWith('/auth')) {
-    return null;
+    // Still loading or not authenticated - show loading state rather than blank page
+    // The router.push() in useEffect will handle the redirect
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-600 dark:text-gray-400">Redirecting to login...</div>
+      </div>
+    );
   }
 
   return <>{children}</>;

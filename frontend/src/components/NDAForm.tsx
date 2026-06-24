@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTemplateContext } from '@/context/TemplateContext';
+import { apiFetch } from '@/lib/api';
 import NDAChat from './NDAChat';
 
 interface NDAFormData {
@@ -41,6 +42,27 @@ const EMPTY_FORM: NDAFormData = {
   returnPeriod: '30 days',
 };
 
+// Map template field names to form field names
+const TEMPLATE_FIELD_MAPPING: Record<string, keyof NDAFormData> = {
+  'Purpose': 'purpose',
+  'Purpose of Disclosure': 'purpose',
+  'Effective Date': 'effectiveDate',
+  'MNDA Term': 'termDuration',
+  'Agreement Term': 'termDuration',
+  'Term of Confidentiality': 'survivalPeriod',
+  'Governing Law': 'jurisdiction',
+  'Jurisdiction': 'jurisdiction',
+  'Disclosing Party': 'disclosingPartyName',
+  'Disclosing Party Entity Type': 'disclosingPartyType',
+  'Disclosing Party Address': 'disclosingPartyAddress',
+  'Receiving Party': 'receivingPartyName',
+  'Receiving Party Entity Type': 'receivingPartyType',
+  'Receiving Party Address': 'receivingPartyAddress',
+  'Termination Notice Period': 'terminationNotice',
+  'Return Period': 'returnPeriod',
+  'Technical Information Survival Period': 'technicalSurvivalPeriod',
+};
+
 const ENTITY_TYPES = [
   { value: 'corporation', label: 'Corporation' },
   { value: 'llc', label: 'LLC (Limited Liability Company)' },
@@ -59,9 +81,8 @@ const NDA_TYPE_LABELS = {
 };
 
 function calculateCompletion(formData: NDAFormData): number {
+  // Only require fields that the template can extract via AI
   const requiredFields = [
-    formData.disclosingPartyName,
-    formData.receivingPartyName,
     formData.effectiveDate,
     formData.purpose,
     formData.jurisdiction,
@@ -75,54 +96,127 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
   const [formData, setFormData] = useState<NDAFormData>(EMPTY_FORM);
   const [showDetails, setShowDetails] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [template, setTemplate] = useState<any>(null);
   const { dispatch } = useTemplateContext();
+
+  useEffect(() => {
+    const templateId = formData.templateType;
+    const loadTemplate = async () => {
+      try {
+        const response = await fetch(`/api/templates/${templateId}`);
+        if (response.ok) {
+          setTemplate(await response.json());
+        }
+      } catch (err) {
+        console.error('Failed to load template:', err);
+      }
+    };
+    loadTemplate();
+  }, [formData.templateType]);
 
   const handleInputChange = (field: keyof NDAFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleGenerateNDA = () => {
+  const handleGenerateNDA = async () => {
     setIsGenerating(true);
     const templateId = formData.templateType;
 
-    const customizations = {
-      'Effective Date': formData.effectiveDate,
-      'Purpose': formData.purpose,
-      'Purpose of Disclosure': formData.purpose,
-      'Disclosing Party': formData.disclosingPartyName,
-      'Disclosing Party Entity Type': formData.disclosingPartyType,
-      'Disclosing Party Address': formData.disclosingPartyAddress,
-      'Receiving Party': formData.receivingPartyName,
-      'Receiving Party Entity Type': formData.receivingPartyType,
-      'Receiving Party Address': formData.receivingPartyAddress,
-      'Jurisdiction': formData.jurisdiction,
-      'Governing Law': formData.jurisdiction,
-      'Agreement Term': formData.termDuration,
-      'MNDA Term': formData.termDuration,
-      'Termination Notice Period': formData.terminationNotice,
-      'Survival Period': formData.survivalPeriod,
-      'Term of Confidentiality': formData.survivalPeriod,
-      'Return Period': formData.returnPeriod,
-      'Technical Information Survival Period': formData.technicalSurvivalPeriod || '',
-    };
-
-    Object.entries(customizations).forEach(([fieldName, value]) => {
-      if (value) {
-        dispatch({
-          type: 'SET_FIELD',
-          templateId,
-          fieldName,
-          value,
-        });
+    try {
+      if (!template) {
+        throw new Error('Template not loaded');
       }
-    });
 
-    if (onSubmit) {
-      onSubmit(formData);
-    } else {
-      setTimeout(() => {
+      const customizations = {
+        'Effective Date': formData.effectiveDate,
+        'Purpose': formData.purpose,
+        'Purpose of Disclosure': formData.purpose,
+        'Disclosing Party': formData.disclosingPartyName,
+        'Disclosing Party Entity Type': formData.disclosingPartyType,
+        'Disclosing Party Address': formData.disclosingPartyAddress,
+        'Receiving Party': formData.receivingPartyName,
+        'Receiving Party Entity Type': formData.receivingPartyType,
+        'Receiving Party Address': formData.receivingPartyAddress,
+        'Jurisdiction': formData.jurisdiction,
+        'Governing Law': formData.jurisdiction,
+        'Agreement Term': formData.termDuration,
+        'MNDA Term': formData.termDuration,
+        'Termination Notice Period': formData.terminationNotice,
+        'Survival Period': formData.survivalPeriod,
+        'Term of Confidentiality': formData.survivalPeriod,
+        'Return Period': formData.returnPeriod,
+        'Technical Information Survival Period': formData.technicalSurvivalPeriod || '',
+      };
+
+      // Apply customizations to template sections
+      const customizedTemplate = JSON.parse(JSON.stringify(template));
+      for (const section of customizedTemplate.sections || []) {
+        for (const [fieldName, fieldValue] of Object.entries(customizations)) {
+          const placeholder = `[${fieldName}]`;
+          if (section.content && typeof section.content === 'string') {
+            section.content = section.content.replace(new RegExp(placeholder, 'g'), fieldValue as string);
+          }
+        }
+      }
+
+      // Render full document content
+      const documentContent = (customizedTemplate.sections || [])
+        .map((s: any) => `${s.title ? `## ${s.title}\n\n` : ''}${s.content || ''}`)
+        .join('\n\n');
+
+      // Save document
+      const saveResponse = await apiFetch('/documents', {
+        method: 'POST',
+        body: JSON.stringify({
+          template_id: templateId,
+          title: template.name,
+          content: documentContent,
+          customizations: JSON.stringify(customizations),
+        }),
+      });
+
+      if (!saveResponse.ok) {
+        let errorMsg = `HTTP ${saveResponse.status}: ${saveResponse.statusText}`;
+        try {
+          const errorData = await saveResponse.json();
+          if (typeof errorData === 'object' && errorData !== null) {
+            if ('detail' in errorData) {
+              errorMsg = Array.isArray(errorData.detail)
+                ? (errorData.detail as any[]).map(e => e.msg || JSON.stringify(e)).join('; ')
+                : String(errorData.detail);
+            } else {
+              errorMsg = JSON.stringify(errorData);
+            }
+          }
+        } catch {
+          // Use default error message
+        }
+        throw new Error(`Failed to save document: ${errorMsg}`);
+      }
+
+      // Dispatch fields to context for preview
+      Object.entries(customizations).forEach(([fieldName, value]) => {
+        if (value) {
+          dispatch({
+            type: 'SET_FIELD',
+            templateId,
+            fieldName,
+            value,
+          });
+        }
+      });
+
+      if (onSubmit) {
+        onSubmit(formData);
+      } else {
         router.push(`/templates/${templateId}`);
-      }, 100);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to generate document';
+      console.error('Failed to generate NDA:', err);
+      alert(`Error: ${message}`);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -157,7 +251,8 @@ export default function NDAForm({ onSubmit }: { onSubmit?: (data: NDAFormData) =
               onFieldsExtracted={(fields) => {
                 Object.entries(fields).forEach(([key, value]) => {
                   if (value) {
-                    handleInputChange(key as keyof NDAFormData, value);
+                    const formFieldName = TEMPLATE_FIELD_MAPPING[key] || (key.toLowerCase().replace(/\s+/g, '') as keyof NDAFormData);
+                    handleInputChange(formFieldName, value);
                   }
                 });
               }}

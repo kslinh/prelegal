@@ -77,6 +77,8 @@ export async function downloadPdf(
   // Loaded lazily so jsPDF (and its canvas probing) is only pulled in when a
   // user actually downloads, keeping it out of the shared bundle and tests.
   const { jsPDF } = await import('jspdf');
+  const { DRAFT_DISCLAIMER } = await import('./disclaimer');
+
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -115,6 +117,13 @@ export async function downloadPdf(
     writeBlock(section.title, 14, 'bold', 6);
     writeBlock(section.content, 11, 'normal', 16);
   }
+
+  // Add disclaimer page
+  doc.addPage();
+  y = margin;
+  doc.setTextColor(100);
+  writeBlock('IMPORTANT DISCLAIMER', 14, 'bold', 12);
+  writeBlock(DRAFT_DISCLAIMER, 9, 'normal', 0);
 
   doc.save(filename);
 }

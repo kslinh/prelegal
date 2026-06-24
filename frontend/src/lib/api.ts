@@ -6,27 +6,35 @@ export async function apiFetch(
   url: string,
   options: FetchOptions = {}
 ): Promise<Response> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const email = options.email || (typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null);
+  let token = null;
+  if (typeof window !== 'undefined') {
+    token = localStorage.getItem('access_token') ?? sessionStorage.getItem('access_token');
+  }
 
   const finalUrl = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-
-  // For backward compatibility, still support email query param
-  if (email && !url.includes('auth') && !token) {
-    finalUrl.searchParams.set('email', email);
-  }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
 
+  console.log(`[apiFetch] ${url}: token=${!!token}, localStorage=${!!localStorage.getItem('access_token')}, sessionStorage=${!!sessionStorage.getItem('access_token')}`);
+
   if (token && !url.includes('auth')) {
     headers['Authorization'] = `Bearer ${token}`;
+    console.log(`[apiFetch] Added Authorization header: Bearer ${token.substring(0, 30)}...`);
+  } else if (!token) {
+    console.log(`[apiFetch] No token found in storage`);
   }
 
-  return fetch(finalUrl.toString(), {
+  const response = await fetch(finalUrl.toString(), {
     ...options,
     headers,
   });
+
+  if (url.includes('documents')) {
+    console.log(`[apiFetch] Response for ${url}: ${response.status}`);
+  }
+
+  return response;
 }

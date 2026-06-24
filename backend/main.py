@@ -5,6 +5,9 @@ from fastapi.responses import FileResponse, HTMLResponse
 from sqlalchemy.orm import Session
 import os
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.config import settings
 from app.database import engine, Base, get_db
@@ -103,28 +106,38 @@ def create_document(
     current_user_id: int = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ):
-    user_id = None
-    if current_user_id:
-        user_id = current_user_id
-    elif email:
-        user = db.query(User).filter(User.email == email).first()
-        user_id = user.id if user else None
+    try:
+        user_id = None
+        if current_user_id:
+            user_id = current_user_id
+        elif email:
+            user = db.query(User).filter(User.email == email).first()
+            user_id = user.id if user else None
 
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Authentication required")
 
-    new_doc = Document(
-        user_id=user_id,
-        user_email=email,
-        template_id=doc.template_id,
-        title=doc.title,
-        content=doc.content,
-        customizations=doc.customizations,
-    )
-    db.add(new_doc)
-    db.commit()
-    db.refresh(new_doc)
-    return new_doc
+        new_doc = Document(
+            user_id=user_id,
+            user_email=email,
+            template_id=doc.template_id,
+            title=doc.title,
+            content=doc.content,
+            customizations=doc.customizations,
+        )
+        db.add(new_doc)
+        db.commit()
+        db.refresh(new_doc)
+        return new_doc
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Document creation error: {type(e).__name__}: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to create document: {type(e).__name__}: {str(e)}"
+        )
 
 @app.get("/documents/{doc_id}", response_model=DocumentSchema)
 def get_document(

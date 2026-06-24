@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import HTTPException, status, Request
 from jose import JWTError, jwt
 import bcrypt
 
@@ -92,9 +92,7 @@ async def get_current_user_optional(request: Request) -> Optional[int]:
 
     token_data = verify_token(token)
     if token_data is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return None
     return token_data.user_id
+
+

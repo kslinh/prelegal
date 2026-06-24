@@ -97,10 +97,32 @@ def load_template(template_id: str) -> dict:
         raise HTTPException(status_code=500, detail=f"Failed to load template: {str(e)}")
 
 
+def normalize_field_name(value: str) -> str:
+    """Normalize a field name for comparison."""
+    return value.lower().strip()
+
+
+def find_template_field_match(extracted_name: str, template: dict) -> str | None:
+    """Find matching template field name (case-insensitive)."""
+    normalized_extracted = normalize_field_name(extracted_name)
+
+    for field in template.get("customizableFields", []):
+        if normalize_field_name(field["name"]) == normalized_extracted:
+            return field["name"]
+
+    return None
+
+
 def filter_extracted_fields(extracted: dict, template: dict) -> dict:
-    """Filter extracted fields to only those defined in the template."""
-    valid_field_names = {f["name"] for f in template.get("customizableFields", [])}
-    return {k: v for k, v in extracted.items() if k in valid_field_names and v}
+    """Filter and normalize extracted fields to match template field names."""
+    result = {}
+    for key, value in extracted.items():
+        if value and isinstance(value, str) and value.strip():
+            # Try to find matching template field (case-insensitive)
+            template_field_name = find_template_field_match(key, template)
+            if template_field_name:
+                result[template_field_name] = value.strip()
+    return result
 
 
 @router.post("/document/{template_id}", response_model=DocumentChatResponse)

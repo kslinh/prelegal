@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DocumentChat from '@/components/DocumentChat';
 import { useTemplateContext } from '@/context/TemplateContext';
-import { Template, CustomizableField } from '@/types/template';
+import { Template } from '@/types/template';
 import { apiFetch } from '@/lib/api';
 
 interface ChatClientProps {
@@ -18,6 +18,7 @@ export default function ChatClient({ templateId }: ChatClientProps) {
   const [formFields, setFormFields] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const { dispatch } = useTemplateContext();
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function ChatClient({ templateId }: ChatClientProps) {
 
   const handleFieldsExtracted = (extractedFields: Record<string, string>) => {
     setFormFields(prev => ({ ...prev, ...extractedFields }));
+    setGenerationError(null);
   };
 
   const calculateCompletion = (): number => {
@@ -62,38 +64,119 @@ export default function ChatClient({ templateId }: ChatClientProps) {
   const handleGenerate = async () => {
     if (!template) return;
     setIsGenerating(true);
+    setGenerationError(null);
 
     try {
+      // Validate form fields are strings
+      const sanitizedFields: Record<string, string> = {};
+      for (const [key, value] of Object.entries(formFields)) {
+        const stringValue = String(value || '');
+        if (stringValue.length > 10000) {
+          throw new Error(`Field "${key}" is too long (${stringValue.length} characters, max 10000)`);
+        }
+        sanitizedFields[key] = stringValue;
+      }
+
       // Apply customizations to template sections
       const customizedTemplate = JSON.parse(JSON.stringify(template));
       for (const section of customizedTemplate.sections || []) {
-        for (const [fieldName, fieldValue] of Object.entries(formFields)) {
-          const placeholder = `[${fieldName}]`;
-          if (section.content && typeof section.content === 'string') {
-            section.content = section.content.replace(new RegExp(placeholder, 'g'), fieldValue as string);
+        try {
+          for (const [fieldName, fieldValue] of Object.entries(sanitizedFields)) {
+            const placeholder = `[${fieldName}]`;
+            if (section.content && typeof section.content === 'string') {
+              // Escape special regex characters in placeholder
+              const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              section.content = section.content.replace(new RegExp(escapedPlaceholder, 'g'), fieldValue);
+            }
           }
+        } catch (sectionError) {
+          throw new Error(`Error processing section "${section.title}": ${sectionError instanceof Error ? sectionError.message : String(sectionError)}`);
         }
       }
 
       // Render full document content
-      const documentContent = (customizedTemplate.sections || [])
-        .map((s: any) => `${s.title ? `## ${s.title}\n\n` : ''}${s.content || ''}`)
-        .join('\n\n');
+      let documentContent = '';
+      try {
+        documentContent = (customizedTemplate.sections || [])
+          .map((s: any) => `${s.title ? `## ${s.title}\n\n` : ''}${s.content || ''}`)
+          .join('\n\n');
+      } catch (contentError) {
+        throw new Error(`Error rendering document content: ${contentError instanceof Error ? contentError.message : String(contentError)}`);
+      }
 
-      // Save document
+      // Validate content size
+      if (documentContent.length > 100000) {
+        throw new Error(`Document content is too large (${documentContent.length} characters, max 100000). Please reduce the field values.`);
+      }
+
+      // Generate unique title with timestamp
+      const timestamp = new Date().toISOString().split('T')[0];
+      const documentTitle = `${template.name} - ${timestamp}`;
+
+      // Serialize customizations as JSON string
+      let customizationsString = '';
+      try {
+        customizationsString = JSON.stringify(sanitizedFields);
+      } catch (stringifyError) {
+        throw new Error(`Error serializing fields: ${stringifyError instanceof Error ? stringifyError.message : String(stringifyError)}`);
+      }
+
+      console.log('Sending document creation request:', {
+        template_id: templateId,
+        title: documentTitle,
+        content_length: documentContent.length,
+        customizations_length: customizationsString.length,
+        fields_count: Object.keys(sanitizedFields).length,
+      });
+
+      // Validate final payload size
+      const finalPayload = JSON.stringify({
+        template_id: templateId,
+        title: documentTitle,
+        content: documentContent,
+        customizations: customizationsString,
+      });
+      if (finalPayload.length > 1000000) {
+        throw new Error(`Request payload is too large (${finalPayload.length} bytes, max 1MB). Please reduce the document content.`);
+      }
+
+      // Save document with explicit JSON string for customizations
       const saveResponse = await apiFetch('/documents', {
         method: 'POST',
-        body: JSON.stringify({
-          template_id: templateId,
-          title: `${template.name}`,
-          content: documentContent,
-          customizations: JSON.stringify(formFields),
-        }),
+        body: finalPayload,
       });
 
       if (!saveResponse.ok) {
-        throw new Error('Failed to save document');
+        let errorMsg = `HTTP ${saveResponse.status}: ${saveResponse.statusText}`;
+        try {
+          const errorData = await saveResponse.json();
+          if (typeof errorData === 'object' && errorData !== null) {
+            if ('detail' in errorData) {
+              errorMsg = Array.isArray(errorData.detail)
+                ? (errorData.detail as any[]).map(e => e.msg || JSON.stringify(e)).join('; ')
+                : String(errorData.detail);
+            } else {
+              errorMsg = JSON.stringify(errorData);
+            }
+          }
+        } catch {
+          // Use default error message if JSON parsing fails
+        }
+        throw new Error(`Failed to save document: ${errorMsg}`);
       }
+
+      let responseData;
+      try {
+        responseData = await saveResponse.json();
+      } catch (parseError) {
+        const parseErrorMsg = parseError instanceof Error ? parseError.message : 'Unknown parsing error';
+        throw new Error(
+          `Failed to parse document response: ${parseErrorMsg}. ` +
+          `Response status: ${saveResponse.status}, Content-Type: ${saveResponse.headers.get('content-type')}`
+        );
+      }
+
+      console.log('Document created successfully:', responseData.id);
 
       // Dispatch fields to context for preview
       for (const [fieldName, fieldValue] of Object.entries(formFields)) {
@@ -105,11 +188,12 @@ export default function ChatClient({ templateId }: ChatClientProps) {
         });
       }
 
-      // Navigate to template viewer
-      router.push(`/templates/${templateId}`);
+      // Navigate to My Documents to show the newly created document
+      router.push('/documents');
     } catch (error) {
-      console.error('Failed to generate document:', error);
-      alert('Failed to generate document. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('Failed to generate document:', errorMsg);
+      setGenerationError(errorMsg);
     } finally {
       setIsGenerating(false);
     }
@@ -201,6 +285,15 @@ export default function ChatClient({ templateId }: ChatClientProps) {
               </div>
             </div>
 
+            {/* Error message */}
+            {generationError && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 rounded-lg">
+                <p className="text-xs text-red-800">
+                  <strong>Error:</strong> {generationError}
+                </p>
+              </div>
+            )}
+
             {/* Generate button */}
             <button
               onClick={handleGenerate}
@@ -213,6 +306,12 @@ export default function ChatClient({ templateId }: ChatClientProps) {
             >
               {isGenerating ? 'Generating...' : `Generate ${template.name}`}
             </button>
+
+            {!canGenerate && !isGenerating && (
+              <p className="text-xs text-gray-600 text-center mt-2">
+                Complete all required fields to enable generation
+              </p>
+            )}
           </div>
         </div>
       </div>

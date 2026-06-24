@@ -5,6 +5,9 @@ from fastapi.responses import FileResponse, HTMLResponse
 from sqlalchemy.orm import Session
 import os
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.config import settings
 from app.database import engine, Base, get_db
@@ -130,9 +133,10 @@ def create_document(
         raise
     except Exception as e:
         db.rollback()
+        logger.error(f"Document creation error: {type(e).__name__}: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=400,
-            detail=f"Failed to create document: {str(e)}"
+            detail=f"Failed to create document: {type(e).__name__}: {str(e)}"
         )
 
 @app.get("/documents/{doc_id}", response_model=DocumentSchema)

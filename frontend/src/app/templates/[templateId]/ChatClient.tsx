@@ -188,8 +188,8 @@ export default function ChatClient({ templateId }: ChatClientProps) {
         });
       }
 
-      // Navigate to template viewer
-      router.push(`/templates/${templateId}`);
+      // Navigate to My Documents to show the newly created document
+      router.push('/documents');
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
       console.error('Failed to generate document:', errorMsg);

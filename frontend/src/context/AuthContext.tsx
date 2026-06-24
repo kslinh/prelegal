@@ -36,12 +36,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const parsed = JSON.parse(storedSession);
         setSession({ ...parsed, access_token: token });
-      } catch {
+        console.log('[AuthContext] Loaded session from storage:', parsed.email);
+      } catch (error) {
+        console.error('[AuthContext] Failed to parse stored session:', error);
         localStorage.removeItem('access_token');
         localStorage.removeItem('session');
         sessionStorage.removeItem('access_token');
         sessionStorage.removeItem('session');
       }
+    } else {
+      console.log('[AuthContext] No session found in storage. localStorage:', !!localStorage.getItem('access_token'), 'sessionStorage:', !!sessionStorage.getItem('access_token'));
     }
     setIsLoading(false);
   }, []);
@@ -73,8 +77,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         access_token,
       };
 
+      console.log('[AuthContext] Signup - storing session in sessionStorage:', user.email);
       sessionStorage.setItem('access_token', access_token);
       sessionStorage.setItem('session', JSON.stringify(newSession));
+      console.log('[AuthContext] Signup - stored. Verifying:', {
+        tokenStored: !!sessionStorage.getItem('access_token'),
+        sessionStored: !!sessionStorage.getItem('session'),
+      });
       setSession(newSession);
 
       router.push('/');
@@ -110,8 +119,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
 
       const storage = rememberMe ? localStorage : sessionStorage;
+      const storageName = rememberMe ? 'localStorage' : 'sessionStorage';
+      console.log(`[AuthContext] Login - storing session in ${storageName}:`, user.email);
       storage.setItem('access_token', access_token);
       storage.setItem('session', JSON.stringify(newSession));
+      console.log(`[AuthContext] Login - stored. Verifying in ${storageName}:`, {
+        tokenStored: !!storage.getItem('access_token'),
+        sessionStored: !!storage.getItem('session'),
+      });
       setSession(newSession);
 
       router.push('/');

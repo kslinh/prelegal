@@ -67,45 +67,83 @@ export default function ChatClient({ templateId }: ChatClientProps) {
     setGenerationError(null);
 
     try {
+      // Validate form fields are strings
+      const sanitizedFields: Record<string, string> = {};
+      for (const [key, value] of Object.entries(formFields)) {
+        const stringValue = String(value || '');
+        if (stringValue.length > 10000) {
+          throw new Error(`Field "${key}" is too long (${stringValue.length} characters, max 10000)`);
+        }
+        sanitizedFields[key] = stringValue;
+      }
+
       // Apply customizations to template sections
       const customizedTemplate = JSON.parse(JSON.stringify(template));
       for (const section of customizedTemplate.sections || []) {
-        for (const [fieldName, fieldValue] of Object.entries(formFields)) {
-          const placeholder = `[${fieldName}]`;
-          if (section.content && typeof section.content === 'string') {
-            section.content = section.content.replace(new RegExp(placeholder, 'g'), fieldValue as string);
+        try {
+          for (const [fieldName, fieldValue] of Object.entries(sanitizedFields)) {
+            const placeholder = `[${fieldName}]`;
+            if (section.content && typeof section.content === 'string') {
+              // Escape special regex characters in placeholder
+              const escapedPlaceholder = placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              section.content = section.content.replace(new RegExp(escapedPlaceholder, 'g'), fieldValue);
+            }
           }
+        } catch (sectionError) {
+          throw new Error(`Error processing section "${section.title}": ${sectionError instanceof Error ? sectionError.message : String(sectionError)}`);
         }
       }
 
       // Render full document content
-      const documentContent = (customizedTemplate.sections || [])
-        .map((s: any) => `${s.title ? `## ${s.title}\n\n` : ''}${s.content || ''}`)
-        .join('\n\n');
+      let documentContent = '';
+      try {
+        documentContent = (customizedTemplate.sections || [])
+          .map((s: any) => `${s.title ? `## ${s.title}\n\n` : ''}${s.content || ''}`)
+          .join('\n\n');
+      } catch (contentError) {
+        throw new Error(`Error rendering document content: ${contentError instanceof Error ? contentError.message : String(contentError)}`);
+      }
+
+      // Validate content size
+      if (documentContent.length > 100000) {
+        throw new Error(`Document content is too large (${documentContent.length} characters, max 100000). Please reduce the field values.`);
+      }
 
       // Generate unique title with timestamp
       const timestamp = new Date().toISOString().split('T')[0];
       const documentTitle = `${template.name} - ${timestamp}`;
 
       // Serialize customizations as JSON string
-      const customizationsString = JSON.stringify(formFields);
+      let customizationsString = '';
+      try {
+        customizationsString = JSON.stringify(sanitizedFields);
+      } catch (stringifyError) {
+        throw new Error(`Error serializing fields: ${stringifyError instanceof Error ? stringifyError.message : String(stringifyError)}`);
+      }
 
       console.log('Sending document creation request:', {
         template_id: templateId,
         title: documentTitle,
         content_length: documentContent.length,
         customizations_length: customizationsString.length,
+        fields_count: Object.keys(sanitizedFields).length,
       });
+
+      // Validate final payload size
+      const finalPayload = JSON.stringify({
+        template_id: templateId,
+        title: documentTitle,
+        content: documentContent,
+        customizations: customizationsString,
+      });
+      if (finalPayload.length > 1000000) {
+        throw new Error(`Request payload is too large (${finalPayload.length} bytes, max 1MB). Please reduce the document content.`);
+      }
 
       // Save document with explicit JSON string for customizations
       const saveResponse = await apiFetch('/documents', {
         method: 'POST',
-        body: JSON.stringify({
-          template_id: templateId,
-          title: documentTitle,
-          content: documentContent,
-          customizations: customizationsString,
-        }),
+        body: finalPayload,
       });
 
       if (!saveResponse.ok) {

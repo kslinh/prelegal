@@ -15,3 +15,10 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
+
+# Validate required settings
+if not settings.secret_key:
+    if not settings.debug:
+        raise RuntimeError("SECRET_KEY environment variable is required for production")
+    # Use a development default only in debug mode
+    settings.secret_key = "dev-key-do-not-use-in-production"

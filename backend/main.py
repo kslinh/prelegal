@@ -85,7 +85,7 @@ def get_template(template_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load template: {str(e)}")
 
-@app.get("/documents", response_model=list[DocumentSchema])
+@app.get("/api/documents", response_model=list[DocumentSchema])
 def list_documents(
     email: str = Query(None),
     current_user_id: int = Depends(get_current_user_optional),

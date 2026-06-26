@@ -29,8 +29,12 @@ const fetcher = async (url: string) => {
 
 export default function DocumentsPage() {
   const { isAuthenticated, isLoading: authLoading, session } = useAuth();
+  const shouldFetch =
+    !authLoading &&
+    isAuthenticated &&
+    !!session?.access_token;
   const { data: documents = [], mutate, isLoading: dataLoading, error: fetchError } = useSWR<Document[]>(
-    isAuthenticated ? '/documents' : null,
+    shouldFetch ? '/api/documents' : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -38,8 +42,7 @@ export default function DocumentsPage() {
       dedupingInterval: 0,
       focusThrottleInterval: 0,
     }
-  );
-
+    );
   // Refetch documents when authentication state changes
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
